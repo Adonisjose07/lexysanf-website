@@ -23,7 +23,7 @@
     <div class="vd to/4 tc wf yf">
       <a href="index.html">
         <img class="om" src="images/logo-1.png" width="100" alt="Logo Light" />
-        <img class="xc nm" src="images/logo-1.png" width="100" alt="Logo Dark" />
+        <img class="xc nm" src="images/logo-black.png" width="100" alt="Logo Dark" />
       </a>
 
       <!-- Hamburger Toggle BTN -->
@@ -50,32 +50,10 @@
       <nav>
         <ul class="tc _o sf yo cg ep">
           <li><a href="index.html" class="xl" :class="{ 'mk': page === 'home' }">Home</a></li>
-          <li><a href="index.html#features" class="xl">Features</a></li>
-          <li class="c i" x-data="{ dropdown: false }">
-            <a
-              href="#"
-              class="xl tc wf yf bg"
-              @click.prevent="dropdown = !dropdown"
-              :class="{ 'mk': page === 'blog-grid' || page === 'blog-single' || page === 'signin' || page === 'signup' || page === '404' }"
-            >
-              Pages
-
-              <svg
-              :class="{ 'wh': dropdown }"
-              class="th mm we fd pf" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                <path d="M233.4 406.6c12.5 12.5 32.8 12.5 45.3 0l192-192c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L256 338.7 86.6 169.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l192 192z" />
-              </svg>
-            </a>
-
-            <!-- Dropdown Start -->
-            <ul class="a" :class="{ 'tc': dropdown }">
-              <li><a href="blog-grid.html" class="xl" :class="{ 'mk': page === 'blog-grid' }">Blog Grid</a></li>
-              <li><a href="blog-single.html" class="xl" :class="{ 'mk': page === 'blog-single' }">Blog Single</a></li>
-              <li><a href="signin.html" class="xl" :class="{ 'mk': page === 'signin' }">Sign In</a></li>
-              <li><a href="signup.html" class="xl" :class="{ 'mk': page === 'signup' }">Sign Up</a></li>
-              <li><a href="404.html" class="xl" :class="{ 'mk': page === '404' }">404</a></li>
-            </ul>
-            <!-- Dropdown End -->
+          <li><a href="index.html#about" class="xl">About</a></li>
+          <li><a href="index.html#services" class="xl">Services</a></li>
+          <li><a href="index.html#pricing" class="xl">Pricing</a></li>
+          <li><a href="index.html#blog" class="xl">Blog</a></li>
           </li>
           <li><a href="index.html#support" class="xl">Support</a></li>
         </ul>
@@ -141,7 +119,7 @@
       <!-- ===== Hero End ===== -->
 
       <!-- ===== Small Features Start ===== -->
-      <section id="features">
+      <section id="about">
         <div class="bb ze ki yn 2xl:ud-px-12.5">
           <div class="tc uf zo xf ap zf bp mq">
             <!-- Small Features Item -->
@@ -219,7 +197,7 @@
       <!-- ===== About End ===== -->
 
       <!-- ===== Team Start ===== -->
-      <section class="i pg ji gp uq">
+      <section class="i pg ji gp uq" id="team">
         <!-- Bg Shapes -->
         <span class="rc h s r vd fd/5 fh rm"></span>
         <img src="images/shape-08.svg" alt="Shape Bg" class="h q r" />
@@ -371,7 +349,7 @@
       <!-- ===== Team End ===== -->
 
       <!-- ===== Services Start ===== -->
-      <section class="lj tp kr">
+      <section class="lj tp kr" id="services">
         <!-- Section Title Start -->
         <div
           x-data="{ sectionTitle: `We Offer The Best Quality Service for You`, sectionTitleText: `Integrated marketing and technology solutions, custom-built to drive your growth and automate your success.`}"
@@ -438,7 +416,7 @@
       <!-- ===== Services End ===== -->
 
       <!-- ===== Pricing Table Start ===== -->
-      <section x-data="setup()" class="i pg fh rm ji gp uq">
+      <section x-data="setup()" class="i pg fh rm ji gp uq" id="pricing">
         <!-- Bg Shapes -->
         <img src="images/shape-06.svg" alt="Shape" class="h aa y" />
         <img src="images/shape-03.svg" alt="Shape" class="h ca u" />
@@ -511,7 +489,7 @@
                   </template>
                 </ul>
 
-                <p class="kk wm">7-day free trial</p>
+                <p class="kk wm">&nbsp;</p>
               </div>
             </template>
           </div>
@@ -519,161 +497,8 @@
       </section>
       <!-- ===== Pricing Table End ===== -->
 
-      <!-- ===== Projects Start ===== -->
-      <section class="pg pj vp mr oj wp nr">
-        <!-- Section Title Start -->
-        <div
-          x-data="{ sectionTitle: `We Offer Great Affordable Premium Prices.`, sectionTitleText: `It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using.`}"
-        >
-          <div class="animate_top bb ze rj ki xn vq">
-    <h2
-            x-text="sectionTitle"
-            class="fk vj pr kk wm on/5 gq/2 bb _b"
-    >
-    </h2>
-    <p class="bb on/5 wo/5 hq" x-text="sectionTitleText"></p>
-</div>
-
-
-        </div>
-        <!-- Section Title End -->
-
-        <div class="bb ze ki xn 2xl:ud-px-0 jb" x-data="{filterTab: 1}">
-          <!-- Porject Tab -->
-          <div
-            class="projects-tab _e bb tc uf wf xf cg rg hh rm vk xm si ti fc"
-          >
-            <button
-              data-filter="*"
-              @click="filterTab = 1"
-              :class="{ 'gh lk' : filterTab === 1 }"
-              class="project-tab-btn ek rg ml il vi mi"
-            >
-              All
-            </button>
-            <button
-              data-filter=".branding"
-              @click="filterTab = 2"
-              :class="{ 'gh lk' : filterTab === 2 }"
-              class="project-tab-btn ek rg ml il vi mi"
-            >
-              Branding Strategy
-            </button>
-            <button
-              data-filter=".digital"
-              @click="filterTab = 3"
-              :class="{ 'gh lk' : filterTab === 3 }"
-              class="project-tab-btn ek rg ml il vi mi"
-            >
-              Digital Experiences
-            </button>
-            <button
-              data-filter=".ecommerce"
-              @click="filterTab = 4"
-              :class="{ 'gh lk' : filterTab === 4 }"
-              class="project-tab-btn ek rg ml il vi mi"
-            >
-              Ecommerce
-            </button>
-          </div>
-
-          <!-- Projects item wrapper -->
-          <div class="projects-wrapper tc -ud-mx-5">
-            <div class="project-sizer"></div>
-            <!-- Project Item -->
-            <div class="project-item wi fb vd jn/2 to/3 branding ecommerce">
-              <div class="c i pg sg z-1">
-                <img src="images/project-01.png" alt="Project" />
-
-                <div 
-                  class="h s r df nl kl im tc sf wf xf vd yc sg al hh/20 z-10"
-                >
-                  <h4 class="ek tj kk hc">Photo Retouching</h4>
-                  <p>Branded Ecommerce</p>
-                  <a
-                    class="c tc wf xf ie ld rg _g dh ml il ph jm km jc"
-                    href="#"
-                  >
-                    <svg class="th lm ml il" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10.4763 6.16664L6.00634 1.69664L7.18467 0.518311L13.6663 6.99998L7.18467 13.4816L6.00634 12.3033L10.4763 7.83331H0.333008V6.16664H10.4763Z" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Project Item -->
-            <div class="project-item wi fb vd jn/2 to/3 digital">
-              <div class="c i pg sg z-1">
-                <img src="images/project-02.png" alt="Project" />
-
-                <div
-                  class="h s r df nl kl im tc sf wf xf vd yc sg al hh/20 z-10"
-                >
-                  <h4 class="ek tj kk hc">Photo Retouching</h4>
-                  <p>Branded Ecommerce</p>
-                  <a
-                    class="c tc wf xf ie ld rg _g dh ml il ph jm km jc"
-                    href="#"
-                  >
-                    <svg class="th lm ml il" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10.4763 6.16664L6.00634 1.69664L7.18467 0.518311L13.6663 6.99998L7.18467 13.4816L6.00634 12.3033L10.4763 7.83331H0.333008V6.16664H10.4763Z" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Project Item -->
-            <div class="project-item wi fb vd jn/2 to/3 branding ecommerce">
-              <div class="c i pg sg z-1">
-                <img src="images/project-04.png" alt="Project" />
-
-                <div
-                  class="h s r df nl kl im tc sf wf xf vd yc sg al hh/20 z-10"
-                >
-                  <h4 class="ek tj kk hc">Photo Retouching</h4>
-                  <p>Branded Ecommerce</p>
-                  <a
-                    class="c tc wf xf ie ld rg _g dh ml il ph jm km jc"
-                    href="#"
-                  >
-                    <svg class="th lm ml il" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10.4763 6.16664L6.00634 1.69664L7.18467 0.518311L13.6663 6.99998L7.18467 13.4816L6.00634 12.3033L10.4763 7.83331H0.333008V6.16664H10.4763Z" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-
-            <!-- Project Item -->
-            <div class="project-item wi fb vd vo/3 digital ecommerce">
-              <div class="c i pg sg z-1">
-                <img src="images/project-03.png" alt="Project" />
-
-                <div
-                  class="h s r df nl kl im tc sf wf xf vd yc sg al hh/20 z-10"
-                >
-                  <h4 class="ek tj kk hc">Photo Retouching</h4>
-                  <p>Branded Ecommerce</p>
-                  <a
-                    class="c tc wf xf ie ld rg _g dh ml il ph jm km jc"
-                    href="#"
-                  >
-                    <svg class="th lm ml il" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M10.4763 6.16664L6.00634 1.69664L7.18467 0.518311L13.6663 6.99998L7.18467 13.4816L6.00634 12.3033L10.4763 7.83331H0.333008V6.16664H10.4763Z" />
-                    </svg>
-                  </a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-      <!-- ===== Projects End ===== -->
-
       <!-- ===== Testimonials Start ===== -->
-      <section class="hj rp hr">
+      <section class="hj rp hr" id="testimonials">
         <!-- Section Title Start -->
         <div
           x-data="{ sectionTitle: `Client’s Testimonials`, sectionTitleText: `Don't just take our word for it. Read how our integrated approach to marketing and technology has driven real growth and innovation for businesses like yours.`}"
@@ -833,7 +658,7 @@
       <!-- ===== Clients End ===== -->
 
       <!-- ===== Blog Start ===== -->
-      <section class="ji gp uq">
+      <section class="ji gp uq" id="blog">
         <!-- Section Title Start -->
         <div
           x-data="{ sectionTitle: `Latest Blogs & News`, sectionTitleText: `It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using.`}"
@@ -879,7 +704,7 @@
                   </div>
                 </div>
                 <h4 class="ek tj ml il kk wm xl eq lb">
-                  <a href="blog-single.html">Free advertising for your online business</a>
+                  <a href="#">Free advertising for your online business</a>
                 </h4>
               </div>
             </div>
@@ -910,7 +735,7 @@
                   </div>
                 </div>
                 <h4 class="ek tj ml il kk wm xl eq lb">
-                  <a href="blog-single.html">9 simple ways to improve your design skills</a>
+                  <a href="#">9 simple ways to improve your design skills</a>
                 </h4>
               </div>
             </div>
@@ -941,7 +766,7 @@
                   </div>
                 </div>
                 <h4 class="ek tj ml il kk wm xl eq lb">
-                  <a href="blog-single.html">Tips to quickly improve your coding speed.</a>
+                  <a href="#">Tips to quickly improve your coding speed.</a>
                 </h4>
               </div>
             </div>
@@ -961,7 +786,7 @@
 
         <!-- Section Title Start -->
         <div
-          x-data="{ sectionTitle: `Let’s Stay Connected`, sectionTitleText: `It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using.`}"
+          x-data="{ sectionTitle: `Let’s Stay Connected`, sectionTitleText: `Ready to transform your digital presence? Whether you have a project in mind or just a question, we're here to listen. Drop us a message, and let's start a conversation about building your success, together.`}"
         >
           <div class="animate_top bb ze rj ki xn vq">
     <h2
@@ -1042,7 +867,7 @@
             </div>
 
             <div class="animate_top w-full nn/5 vo/3 vk sg hh sm yh tq">
-              <form action="https://formbold.com/s/unique_form_id" method="POST">
+              <form action="#" method="POST">
                 <div class="tc sf yo ap zf ep qb">
                   <div class="vd to/2">
                     <label class="rc ac" for="fullname">Full name</label>
@@ -1146,28 +971,28 @@
 
           plans: [
             {
-              name: 'Starter',
+              name: 'Starter Plan',
               price: {
-                monthly: 29,
-                annually: 29 * 12 - 199,
+                monthly: 6,
+                annually: 6 * 12 - 10,
               },
-              features: ['400 GB Storaget', 'Unlimited Photos & Videos', 'Exclusive Support'],
+              features: ['🤖 Basic customer service chatbot', '💬 Predefined automatic responses (FAQ, business hours, services)', '🌐 Integration on a single website', '🛠️ 1 annual update of the bot\'s content', '📊 Simple conversation report (monthly)', '⚡ Instant response 24/7'],
             },
             {
-              name: 'Growth Plan',
+              name: 'Professional Plan',
               price: {
-                monthly: 59,
-                annually: 59 * 12 - 100,
+                monthly: 12,
+                annually: 12 * 12 - 10,
               },
-              features: ['400 GB Storaget', 'Unlimited Photos & Videos', 'Exclusive Support'],
+              features: ['Includes everything in the Basic Plan', '🤖 Custom chatbot tailored to your business', '🧠 Knowledge base loaded with your documents (max. 10 documents)', '🔄 3 content updates per year', '🌟 More natural responses and professional tone', '📲 Optional WhatsApp integration (subject to availability)', '📊 Detailed usage reports and frequently asked questions'],
             },
             {
-              name: 'Business',
+              name: 'Enterprise Plan',
               price: {
-                monthly: 139,
-                annually: 139 * 12 - 100,
+                monthly: 28,
+                annually: 28 * 12 - 15,
               },
-              features: ['400 GB Storaget', 'Unlimited Photos & Videos', 'Exclusive Support'],
+              features: ['Includes everything in the Professional Plan', '🤖 Advanced chatbot with intelligent conversational flow', '🧩 Additional integrations (Google Calendar, CRM, forms, lead capture)', '🧠 Large knowledge base (up to 50 documents)', '🔄 Unlimited bot updates', '🚀 Priority support + unlimited adjustments', '📈 Advanced reports with sales insights'],
             },
           ],
         };
