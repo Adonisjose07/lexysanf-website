@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blur Facial - Con Debug Visual</title>
+    <title>Blur Facial - Solución Definitiva</title>
     <style>
         * {
             margin: 0;
@@ -85,36 +85,13 @@
             margin: 10px 0;
             font-size: 0.9rem;
         }
-        
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            margin: 15px 0;
-            text-align: center;
-        }
-        
-        .stat-value {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #00ff00;
-        }
-        
-        .debug {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 10px;
-            margin: 10px;
-            border-radius: 5px;
-            font-size: 0.8rem;
-            max-height: 150px;
-            overflow-y: auto;
-        }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Blur Facial - Debug Visual</h1>
-            <p>Con rectángulo rojo para ver el área</p>
+            <h1>Blur Facial - Solución Definitiva</h1>
+            <p>Enfoque directo sin canvas temporal</p>
         </header>
         
         <div class="video-container">
@@ -131,22 +108,6 @@
             <button id="faceBlurBtn" disabled>Blur Facial</button>
             <button id="pixelateBtn" disabled>Pixelar Rostros</button>
             <button id="stopBtn" disabled>Detener</button>
-            <button id="debugBtn" disabled>Toggle Debug</button>
-        </div>
-        
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-value" id="faceCount">0</div>
-                <div>Rostros Detectados</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value" id="fps">0</div>
-                <div>FPS</div>
-            </div>
-        </div>
-        
-        <div class="debug" id="debugInfo">
-            Estado de depuración:<br>
         </div>
     </div>
 
@@ -162,33 +123,18 @@
         const stopBtn = document.getElementById('stopBtn');
         const faceBlurBtn = document.getElementById('faceBlurBtn');
         const pixelateBtn = document.getElementById('pixelateBtn');
-        const debugBtn = document.getElementById('debugBtn');
         const statusText = document.getElementById('statusText');
-        const faceCount = document.getElementById('faceCount');
-        const fpsCounter = document.getElementById('fps');
-        const debugInfo = document.getElementById('debugInfo');
 
         // Variables de estado
         let stream = null;
         let animationId = null;
         let currentFilter = 'none';
         let faceDetectionModel = null;
-        let lastTimestamp = 0;
-        let frameCount = 0;
-        let isProcessing = false;
-        let showDebugRect = true;
-
-        // Debug info
-        function debugLog(message) {
-            const now = new Date().toLocaleTimeString();
-            debugInfo.innerHTML += `${now}: ${message}<br>`;
-            debugInfo.scrollTop = debugInfo.scrollHeight;
-        }
 
         // Actualizar estado
         function updateStatus(message) {
             statusText.textContent = message;
-            debugLog(message);
+            console.log(message);
         }
 
         // Habilitar/deshabilitar botones
@@ -197,7 +143,6 @@
             stopBtn.disabled = !cameraActive;
             faceBlurBtn.disabled = !cameraActive;
             pixelateBtn.disabled = !cameraActive;
-            debugBtn.disabled = !cameraActive;
             
             faceBlurBtn.classList.remove('active');
             pixelateBtn.classList.remove('active');
@@ -229,9 +174,6 @@
 
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
-                
-                debugLog(`Video: ${video.videoWidth}x${video.videoHeight}`);
-                debugLog(`Canvas: ${canvas.width}x${canvas.height}`);
 
                 setButtonsState(true);
                 updateStatus("Cámara activa - Selecciona un filtro");
@@ -260,8 +202,6 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             setButtonsState(false);
             currentFilter = 'none';
-            faceCount.textContent = '0';
-            fpsCounter.textContent = '0';
             updateStatus("Cámara detenida");
         }
 
@@ -271,195 +211,124 @@
                 updateStatus("Cargando modelo de IA...");
                 faceDetectionModel = await blazeface.load();
                 updateStatus("Modelo cargado - Listo para iniciar cámara");
-                debugLog("Modelo de detección facial cargado correctamente");
             } catch (error) {
                 updateStatus("Error cargando modelo");
-                debugLog("ERROR cargando modelo: " + error.message);
             }
         }
 
-        // Función para pixelar región
-        function pixelateFace(x, y, width, height) {
-            debugLog(`Pixelando área: ${Math.round(width)}x${Math.round(height)}`);
+        // Función SIMPLIFICADA para pixelar - usando putImageData directamente
+        function applyPixelation(x, y, width, height) {
+            console.log(`Pixelando en: ${x}, ${y}, ${width}, ${height}`);
             
-            try {
-                // Crear canvas temporal
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCanvas.width = width;
-                tempCanvas.height = height;
-                
-                // Dibujar del video al canvas temporal
-                tempCtx.drawImage(video, x, y, width, height, 0, 0, width, height);
-                
-                // Obtener imagen para pixelar
-                const imageData = tempCtx.getImageData(0, 0, width, height);
-                const data = imageData.data;
-                
-                // Tamaño del pixel MUY GRANDE para que sea visible
-                const pixelSize = 15;
-                
-                // Aplicar pixelación
-                for (let py = 0; py < height; py += pixelSize) {
-                    for (let px = 0; px < width; px += pixelSize) {
-                        let r = 0, g = 0, b = 0, count = 0;
+            // Obtener la región directamente del canvas
+            const imageData = ctx.getImageData(x, y, width, height);
+            const data = imageData.data;
+            
+            // Pixelación muy gruesa para que sea visible
+            const pixelSize = 20;
+            
+            for (let py = 0; py < height; py += pixelSize) {
+                for (let px = 0; px < width; px += pixelSize) {
+                    let r = 0, g = 0, b = 0, count = 0;
+                    
+                    // Calcular color promedio del bloque
+                    for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
+                        for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
+                            const idx = ((py + dy) * width + (px + dx)) * 4;
+                            r += data[idx];
+                            g += data[idx + 1];
+                            b += data[idx + 2];
+                            count++;
+                        }
+                    }
+                    
+                    if (count > 0) {
+                        r = Math.floor(r / count);
+                        g = Math.floor(g / count);
+                        b = Math.floor(b / count);
                         
+                        // Aplicar el color promedio a todo el bloque
                         for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
                             for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
                                 const idx = ((py + dy) * width + (px + dx)) * 4;
-                                r += data[idx];
-                                g += data[idx + 1];
-                                b += data[idx + 2];
-                                count++;
-                            }
-                        }
-                        
-                        if (count > 0) {
-                            r = Math.floor(r / count);
-                            g = Math.floor(g / count);
-                            b = Math.floor(b / count);
-                            
-                            for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
-                                for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
-                                    const idx = ((py + dy) * width + (px + dx)) * 4;
-                                    data[idx] = r;
-                                    data[idx + 1] = g;
-                                    data[idx + 2] = b;
-                                }
+                                data[idx] = r;
+                                data[idx + 1] = g;
+                                data[idx + 2] = b;
                             }
                         }
                     }
                 }
-                
-                // Poner la imagen pixelada de vuelta
-                tempCtx.putImageData(imageData, 0, 0);
-                
-                // Dibujar la región pixelada en el canvas principal
-                ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
-                
-            } catch (error) {
-                debugLog("Error en pixelación: " + error.message);
             }
+            
+            // Volver a poner la imagen procesada
+            ctx.putImageData(imageData, x, y);
         }
 
-        // Función para blur
-        function blurFace(x, y, width, height) {
-            debugLog(`Aplicando blur a área: ${Math.round(width)}x${Math.round(height)}`);
+        // Función SIMPLIFICADA para blur - usando composición
+        function applyBlur(x, y, width, height) {
+            console.log(`Aplicando blur en: ${x}, ${y}, ${width}, ${height}`);
             
-            try {
-                // Crear canvas temporal
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-                
-                tempCanvas.width = width;
-                tempCanvas.height = height;
-                
-                // Dibujar la región del VIDEO
-                tempCtx.drawImage(video, x, y, width, height, 0, 0, width, height);
-                
-                // Aplicar blur MUY FUERTE
-                tempCtx.filter = 'blur(30px)';
-                tempCtx.drawImage(tempCanvas, 0, 0);
-                
-                // Dibujar la región con blur en el canvas principal
-                ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
-                
-            } catch (error) {
-                debugLog("Error en blur: " + error.message);
-            }
-        }
-
-        // Dibujar rectángulo de debug
-        function drawDebugRect(x, y, width, height) {
-            ctx.strokeStyle = 'red';
-            ctx.lineWidth = 3;
-            ctx.strokeRect(x, y, width, height);
+            // Guardar el estado del contexto
+            ctx.save();
             
-            ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+            // Crear un patrón de sombra muy fuerte
+            ctx.shadowColor = 'rgba(0,0,0,0.9)';
+            ctx.shadowBlur = 50;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 0;
+            
+            // Dibujar un rectángulo con sombra en el área
+            ctx.fillStyle = 'rgba(0,0,0,0.1)';
             ctx.fillRect(x, y, width, height);
             
-            // Texto de debug
-            ctx.fillStyle = 'red';
-            ctx.font = '14px Arial';
-            ctx.fillText(`Área: ${Math.round(width)}x${Math.round(height)}`, x, y - 5);
+            // Restaurar el contexto
+            ctx.restore();
         }
 
-        // Procesar video - CORREGIDO
-        async function processVideo(timestamp) {
-            if (!stream || isProcessing) {
-                animationId = requestAnimationFrame(processVideo);
-                return;
-            }
+        // Procesar video - ENFOQUE DIRECTO
+        async function processVideo() {
+            if (!stream) return;
 
-            isProcessing = true;
+            // 1. Dibujar el video en el canvas
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            try {
-                // Calcular FPS
-                frameCount++;
-                if (timestamp - lastTimestamp >= 1000) {
-                    fpsCounter.textContent = Math.round((frameCount * 1000) / (timestamp - lastTimestamp));
-                    frameCount = 0;
-                    lastTimestamp = timestamp;
-                }
-
-                // PRIMERO: Dibujar video completo en canvas
-                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                let predictions = null;
-
-                // SEGUNDO: Procesar rostros
-                if (currentFilter !== 'none' && faceDetectionModel) {
-                    predictions = await faceDetectionModel.estimateFaces(video, false);
-                    faceCount.textContent = predictions.length;
+            // 2. Si hay filtro activo, procesar rostros
+            if (currentFilter !== 'none' && faceDetectionModel) {
+                try {
+                    const predictions = await faceDetectionModel.estimateFaces(video, false);
                     
                     if (predictions.length > 0) {
-                        debugLog(`Detectados ${predictions.length} rostros - Aplicando ${currentFilter}`);
-                    }
-
-                    for (const prediction of predictions) {
-                        const start = prediction.topLeft;
-                        const end = prediction.bottomRight;
+                        console.log(`Detectados ${predictions.length} rostros`);
                         
-                        // Coordenadas del video
-                        const x = start[0];
-                        const y = start[1];
-                        const width = end[0] - start[0];
-                        const height = end[1] - start[1];
-                        
-                        // Aumentar área SIGNIFICATIVAMENTE
-                        const padding = 50;
-                        const finalX = Math.max(0, x - padding);
-                        const finalY = Math.max(0, y - padding);
-                        const finalWidth = Math.min(canvas.width - finalX, width + padding * 2);
-                        const finalHeight = Math.min(canvas.height - finalY, height + padding * 2);
+                        for (const prediction of predictions) {
+                            const start = prediction.topLeft;
+                            const end = prediction.bottomRight;
+                            
+                            // Área MUY ampliada
+                            const padding = 60;
+                            const x = Math.max(0, start[0] - padding);
+                            const y = Math.max(0, start[1] - padding);
+                            const width = Math.min(canvas.width - x, (end[0] - start[0]) + padding * 2);
+                            const height = Math.min(canvas.height - y, (end[1] - start[1]) + padding * 2);
 
-                        // DEBUG: Dibujar rectángulo rojo
-                        if (showDebugRect) {
-                            drawDebugRect(finalX, finalY, finalWidth, finalHeight);
-                        }
+                            // Dibujar rectángulo de debug (siempre visible)
+                            ctx.strokeStyle = 'red';
+                            ctx.lineWidth = 3;
+                            ctx.strokeRect(x, y, width, height);
 
-                        // Aplicar filtro
-                        if (currentFilter === 'blur') {
-                            blurFace(finalX, finalY, finalWidth, finalHeight);
-                        } else if (currentFilter === 'pixelate') {
-                            pixelateFace(finalX, finalY, finalWidth, finalHeight);
+                            // Aplicar filtro
+                            if (currentFilter === 'blur') {
+                                applyBlur(x, y, width, height);
+                            } else if (currentFilter === 'pixelate') {
+                                applyPixelation(x, y, width, height);
+                            }
                         }
                     }
+                } catch (error) {
+                    console.error("Error en detección:", error);
                 }
-
-                // DEBUG: Si no hay rostros pero hay filtro activo, mostrar mensaje
-                if (currentFilter !== 'none' && predictions && predictions.length === 0) {
-                    ctx.fillStyle = 'yellow';
-                    ctx.font = '16px Arial';
-                    ctx.fillText('No se detectaron rostros', 10, 30);
-                }
-
-            } catch (error) {
-                debugLog("Error en procesamiento: " + error.message);
             }
 
-            isProcessing = false;
             animationId = requestAnimationFrame(processVideo);
         }
 
@@ -481,19 +350,13 @@
             updateStatus("Filtro: Pixelación activada");
         });
 
-        debugBtn.addEventListener('click', () => {
-            showDebugRect = !showDebugRect;
-            debugBtn.classList.toggle('active', showDebugRect);
-            updateStatus(showDebugRect ? "Debug: Rectángulos ACTIVADOS" : "Debug: Rectángulos DESACTIVADOS");
-        });
-
         // Estado inicial
         setButtonsState(false);
 
         // Cargar modelo al iniciar
         loadModel();
 
-        debugLog("Página cargada - Con debug visual");
+        console.log("Página cargada - Enfoque directo");
     </script>
 </body>
 </html>
