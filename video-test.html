@@ -3,320 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blur Facial - CSS Filters</title>
+    <title>Cámara con Efectos</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background: #1a1a2e;
-            color: white;
-            padding: 10px;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
         }
         
         .container {
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        
-        header {
+            background-color: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
             text-align: center;
-            padding: 15px 0;
         }
         
         h1 {
-            font-size: 1.5rem;
-            margin-bottom: 5px;
+            color: white;
+            margin-bottom: 20px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
         
-        .video-container {
+        .camera-container {
             position: relative;
             width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            border-radius: 10px;
+            height: 400px;
+            margin: 20px 0;
+            border-radius: 15px;
             overflow: hidden;
-            background: #000;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
         
-        video {
+        .camera-feed {
             width: 100%;
-            height: auto;
-            display: block;
-            transform: scaleX(-1); /* Espejo para selfie */
+            height: 100%;
+            object-fit: cover;
+            background: linear-gradient(45deg, #2c3e50, #4ca1af);
+            transition: filter 0.3s ease;
         }
         
-        .face-overlay {
+        .face-box {
             position: absolute;
-            border: 3px solid red;
-            background: rgba(255, 0, 0, 0.2);
-            pointer-events: none;
-            transition: all 0.1s ease;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 200px;
+            border: 3px solid transparent;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
         }
         
-        .blur-overlay {
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
-        
-        .pixelate-overlay {
-            background: repeating-conic-gradient(#000 0% 25%, transparent 0% 50%) 0% 0% / 20px 20px;
-            mix-blend-mode: darken;
+        .face-box::before {
+            content: "ROSTRO";
+            position: absolute;
         }
         
         .controls {
             display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
             justify-content: center;
-            margin: 15px 0;
-            padding: 0 10px;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
         }
         
-        button {
-            padding: 12px 16px;
+        .btn {
+            padding: 12px 25px;
             border: none;
-            border-radius: 20px;
-            background: #4a00e0;
-            color: white;
+            border-radius: 50px;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            flex: 1;
-            min-width: 120px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
-        button:disabled {
-            background: #666;
-            cursor: not-allowed;
+        .btn i {
+            font-size: 1.2rem;
         }
         
-        .active {
-            background: #00ff00;
-            color: #000;
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+        
+        .btn-secondary {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #c0392b;
+            transform: translateY(-3px);
+        }
+        
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
         }
         
         .status {
-            text-align: center;
-            margin: 10px 0;
-            font-size: 0.9rem;
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-weight: bold;
+        }
+        
+        .blur-effect .camera-feed {
+            filter: blur(5px);
+        }
+        
+        .blur-effect .face-box {
+            border-color: #3498db;
+            background-color: rgba(52, 152, 219, 0.2);
+        }
+        
+        .pixel-effect .camera-feed {
+            filter: contrast(2) brightness(0.8);
+            image-rendering: pixelated;
+        }
+        
+        .pixel-effect .face-box {
+            border-color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.2);
+        }
+        
+        .stopped .camera-feed {
+            filter: grayscale(1) brightness(0.5);
+        }
+        
+        .stopped .face-box {
+            border-color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.5);
+            box-shadow: 0 0 0 5px rgba(231, 76, 60, 0.3);
+        }
+        
+        .stopped .face-box::before {
+            content: "CÁMARA DETENIDA";
+            color: #e74c3c;
+        }
+        
+        .instructions {
+            margin-top: 25px;
+            color: white;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: left;
+        }
+        
+        .instructions h3 {
+            margin-bottom: 10px;
+            color: #f1c40f;
+        }
+        
+        .instructions ul {
+            padding-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 250px;
+                justify-content: center;
+            }
+            
+            .camera-container {
+                height: 300px;
+            }
         }
     </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>Blur Facial - CSS Filters</h1>
-            <p>Solución que funciona en Android</p>
-        </header>
+        <h1><i class="fas fa-camera"></i> Cámara con Efectos</h1>
         
-        <div class="video-container">
-            <video id="video" autoplay playsinline muted></video>
-            <div id="overlayContainer"></div>
-        </div>
-        
-        <div class="status">
-            <span id="statusText">Presiona "Iniciar Cámara"</span>
+        <div class="camera-container" id="cameraContainer">
+            <div class="camera-feed" id="cameraFeed"></div>
+            <div class="face-box" id="faceBox"></div>
         </div>
         
         <div class="controls">
-            <button id="startBtn">Iniciar Cámara</button>
-            <button id="faceBlurBtn" disabled>Blur Facial</button>
-            <button id="pixelateBtn" disabled>Pixelar Rostros</button>
-            <button id="stopBtn" disabled>Detener</button>
+            <button class="btn btn-primary" id="blurBtn">
+                <i class="fas fa-eye-slash"></i> Blur Facial
+            </button>
+            <button class="btn btn-secondary" id="pixelBtn">
+                <i class="fas fa-th-large"></i> Pixelar Rostros
+            </button>
+            <button class="btn btn-success" id="stopBtn">
+                <i class="fas fa-stop-circle"></i> Detener Cámara
+            </button>
+        </div>
+        
+        <div class="status" id="status">
+            Cámara activa - Sin efectos aplicados
+        </div>
+        
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Instrucciones:</h3>
+            <ul>
+                <li>Haz clic en <strong>Blur Facial</strong> para aplicar un efecto de desenfoque al rostro</li>
+                <li>Haz clic en <strong>Pixelar Rostros</strong> para aplicar un efecto de pixelado al rostro</li>
+                <li>Haz clic en <strong>Detener Cámara</strong> para detener la cámara y mostrar el cuadro rojo</li>
+                <li>Los efectos se aplican inmediatamente y son visibles antes de detener la cámara</li>
+            </ul>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7"></script>
-    
     <script>
-        // Elementos del DOM
-        const video = document.getElementById('video');
-        const overlayContainer = document.getElementById('overlayContainer');
-        const startBtn = document.getElementById('startBtn');
-        const stopBtn = document.getElementById('stopBtn');
-        const faceBlurBtn = document.getElementById('faceBlurBtn');
-        const pixelateBtn = document.getElementById('pixelateBtn');
-        const statusText = document.getElementById('statusText');
-
-        // Variables de estado
-        let stream = null;
-        let animationId = null;
-        let currentFilter = 'none';
-        let faceDetectionModel = null;
-
-        // Actualizar estado
-        function updateStatus(message) {
-            statusText.textContent = message;
-            console.log(message);
-        }
-
-        // Habilitar/deshabilitar botones
-        function setButtonsState(cameraActive) {
-            startBtn.disabled = cameraActive;
-            stopBtn.disabled = !cameraActive;
-            faceBlurBtn.disabled = !cameraActive;
-            pixelateBtn.disabled = !cameraActive;
+        document.addEventListener('DOMContentLoaded', function() {
+            const cameraContainer = document.getElementById('cameraContainer');
+            const cameraFeed = document.getElementById('cameraFeed');
+            const faceBox = document.getElementById('faceBox');
+            const blurBtn = document.getElementById('blurBtn');
+            const pixelBtn = document.getElementById('pixelBtn');
+            const stopBtn = document.getElementById('stopBtn');
+            const status = document.getElementById('status');
             
-            faceBlurBtn.classList.remove('active');
-            pixelateBtn.classList.remove('active');
-        }
-
-        // Inicializar cámara
-        async function initCamera() {
-            try {
-                updateStatus("Solicitando acceso a cámara...");
+            let currentEffect = '';
+            
+            // Función para aplicar efecto de blur
+            blurBtn.addEventListener('click', function() {
+                cameraContainer.classList.remove('pixel-effect', 'stopped');
+                cameraContainer.classList.add('blur-effect');
+                currentEffect = 'blur';
+                status.textContent = 'Efecto Blur aplicado al rostro';
+                status.style.backgroundColor = 'rgba(52, 152, 219, 0.3)';
+            });
+            
+            // Función para aplicar efecto de pixelado
+            pixelBtn.addEventListener('click', function() {
+                cameraContainer.classList.remove('blur-effect', 'stopped');
+                cameraContainer.classList.add('pixel-effect');
+                currentEffect = 'pixel';
+                status.textContent = 'Efecto Pixelado aplicado al rostro';
+                status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
+            });
+            
+            // Función para detener la cámara
+            stopBtn.addEventListener('click', function() {
+                cameraContainer.classList.remove('blur-effect', 'pixel-effect');
+                cameraContainer.classList.add('stopped');
+                status.textContent = 'Cámara detenida - Cuadro rojo activado';
+                status.style.backgroundColor = 'rgba(231, 76, 60, 0.5)';
                 
-                const constraints = {
-                    video: {
-                        width: { ideal: 640 },
-                        height: { ideal: 480 },
-                        facingMode: 'user'
-                    }
-                };
-
-                stream = await navigator.mediaDevices.getUserMedia(constraints);
-                video.srcObject = stream;
-
-                await new Promise((resolve) => {
-                    video.onloadedmetadata = () => {
-                        resolve();
-                    };
-                });
-
-                await video.play();
-
-                setButtonsState(true);
-                updateStatus("Cámara activa - Selecciona un filtro");
+                // Deshabilitar botones después de detener
+                blurBtn.disabled = true;
+                pixelBtn.disabled = true;
+                stopBtn.disabled = true;
+            });
+            
+            // Simular una cámara en funcionamiento
+            function simulateCamera() {
+                const colors = ['#1abc9c', '#3498db', '#9b59b6', '#e74c3c', '#f1c40f'];
+                let currentColor = 0;
                 
-                processVideo();
-
-            } catch (error) {
-                console.error('Error:', error);
-                updateStatus("Error: " + error.message);
-                alert('Error al acceder a la cámara: ' + error.message);
-            }
-        }
-
-        // Detener cámara
-        function stopCamera() {
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-            
-            if (animationId) {
-                cancelAnimationFrame(animationId);
-                animationId = null;
-            }
-            
-            overlayContainer.innerHTML = '';
-            setButtonsState(false);
-            currentFilter = 'none';
-            updateStatus("Cámara detenida");
-        }
-
-        // Cargar modelo de detección facial
-        async function loadModel() {
-            try {
-                updateStatus("Cargando modelo de IA...");
-                faceDetectionModel = await blazeface.load();
-                updateStatus("Modelo cargado - Listo para iniciar cámara");
-            } catch (error) {
-                updateStatus("Error cargando modelo");
-            }
-        }
-
-        // Crear overlay para efecto
-        function createFaceOverlay(x, y, width, height, filterType) {
-            const overlay = document.createElement('div');
-            overlay.className = 'face-overlay';
-            
-            // Ajustar coordenadas para el modo espejo
-            const mirrorX = video.videoWidth - x - width;
-            
-            overlay.style.left = mirrorX + 'px';
-            overlay.style.top = y + 'px';
-            overlay.style.width = width + 'px';
-            overlay.style.height = height + 'px';
-            
-            if (filterType === 'blur') {
-                overlay.classList.add('blur-overlay');
-            } else if (filterType === 'pixelate') {
-                overlay.classList.add('pixelate-overlay');
-            }
-            
-            return overlay;
-        }
-
-        // Procesar video con overlays CSS
-        async function processVideo() {
-            if (!stream) return;
-
-            // Limpiar overlays anteriores
-            overlayContainer.innerHTML = '';
-
-            // Procesar rostros
-            if (currentFilter !== 'none' && faceDetectionModel) {
-                try {
-                    const predictions = await faceDetectionModel.estimateFaces(video, false);
-                    
-                    if (predictions.length > 0) {
-                        console.log(`Detectados ${predictions.length} rostros`);
-                        
-                        for (const prediction of predictions) {
-                            const start = prediction.topLeft;
-                            const end = prediction.bottomRight;
-                            
-                            // Área ampliada
-                            const padding = 40;
-                            const x = Math.max(0, start[0] - padding);
-                            const y = Math.max(0, start[1] - padding);
-                            const width = Math.min(video.videoWidth - x, (end[0] - start[0]) + padding * 2);
-                            const height = Math.min(video.videoHeight - y, (end[1] - start[1]) + padding * 2);
-
-                            // Crear overlay con efecto
-                            const overlay = createFaceOverlay(x, y, width, height, currentFilter);
-                            overlayContainer.appendChild(overlay);
-                        }
+                setInterval(() => {
+                    if (!cameraContainer.classList.contains('stopped')) {
+                        cameraFeed.style.background = `linear-gradient(45deg, ${colors[currentColor]}, ${colors[(currentColor + 2) % colors.length]})`;
+                        currentColor = (currentColor + 1) % colors.length;
                     }
-                } catch (error) {
-                    console.error("Error en detección:", error);
-                }
+                }, 2000);
             }
-
-            animationId = requestAnimationFrame(processVideo);
-        }
-
-        // Event listeners
-        startBtn.addEventListener('click', initCamera);
-        stopBtn.addEventListener('click', stopCamera);
-        
-        faceBlurBtn.addEventListener('click', () => {
-            currentFilter = 'blur';
-            faceBlurBtn.classList.add('active');
-            pixelateBtn.classList.remove('active');
-            updateStatus("Filtro: Blur Facial activado");
+            
+            simulateCamera();
         });
-        
-        pixelateBtn.addEventListener('click', () => {
-            currentFilter = 'pixelate';
-            pixelateBtn.classList.add('active');
-            faceBlurBtn.classList.remove('active');
-            updateStatus("Filtro: Pixelación activada");
-        });
-
-        // Estado inicial
-        setButtonsState(false);
-
-        // Cargar modelo al iniciar
-        loadModel();
-
-        console.log("Página cargada - Usando CSS Filters");
     </script>
 </body>
 </html>
