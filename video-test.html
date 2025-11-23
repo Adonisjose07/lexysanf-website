@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blur Facial - Corregido</title>
+    <title>Blur Facial - Área Ampliada</title>
     <style>
         * {
             margin: 0;
@@ -113,8 +113,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Blur Facial Android</h1>
-            <p>Versión corregida - Ahora sí funciona</p>
+            <h1>Blur Facial - Área Grande</h1>
+            <p>Forzando área de efecto más grande</p>
         </header>
         
         <div class="video-container">
@@ -195,7 +195,6 @@
             faceBlurBtn.disabled = !cameraActive;
             pixelateBtn.disabled = !cameraActive;
             
-            // Resetear clases activas
             faceBlurBtn.classList.remove('active');
             pixelateBtn.classList.remove('active');
         }
@@ -216,7 +215,6 @@
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
                 video.srcObject = stream;
 
-                // Esperar a que el video esté listo
                 await new Promise((resolve) => {
                     video.onloadedmetadata = () => {
                         resolve();
@@ -225,17 +223,15 @@
 
                 await video.play();
 
-                // Configurar canvas
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 
-                debugLog(`Video dimensiones: ${video.videoWidth}x${video.videoHeight}`);
-                debugLog(`Canvas dimensiones: ${canvas.width}x${canvas.height}`);
+                debugLog(`Video: ${video.videoWidth}x${video.videoHeight}`);
+                debugLog(`Canvas: ${canvas.width}x${canvas.height}`);
 
                 setButtonsState(true);
                 updateStatus("Cámara activa - Selecciona un filtro");
                 
-                // Iniciar procesamiento
                 processVideo();
 
             } catch (error) {
@@ -278,35 +274,47 @@
             }
         }
 
-        // Función para pixelar región - MEJORADA
+        // Función para pixelar región - VERSIÓN MEJORADA
         function pixelateFace(x, y, width, height) {
-            debugLog(`Pixelando rostro en: x=${Math.round(x)}, y=${Math.round(y)}, w=${Math.round(width)}, h=${Math.round(height)}`);
+            debugLog(`Pixelando área: ${Math.round(width)}x${Math.round(height)}`);
             
             try {
-                // Obtener la región del rostro del VIDEO (no del canvas)
+                // Crear canvas temporal
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
-                tempCanvas.width = width;
-                tempCanvas.height = height;
+                
+                // Hacer el área MÁS GRANDE
+                const scale = 1.5; // Aumentar área en 50%
+                const expandedWidth = width * scale;
+                const expandedHeight = height * scale;
+                const expandedX = Math.max(0, x - (expandedWidth - width) / 2);
+                const expandedY = Math.max(0, y - (expandedHeight - height) / 2);
+                
+                tempCanvas.width = expandedWidth;
+                tempCanvas.height = expandedHeight;
                 
                 // Dibujar del video al canvas temporal
-                tempCtx.drawImage(video, x, y, width, height, 0, 0, width, height);
+                tempCtx.drawImage(
+                    video, 
+                    expandedX, expandedY, expandedWidth, expandedHeight,
+                    0, 0, expandedWidth, expandedHeight
+                );
                 
                 // Obtener imagen para pixelar
-                const imageData = tempCtx.getImageData(0, 0, width, height);
+                const imageData = tempCtx.getImageData(0, 0, expandedWidth, expandedHeight);
                 const data = imageData.data;
                 
-                // Tamaño del pixel
-                const pixelSize = 12;
+                // Tamaño del pixel MUY GRANDE para que sea visible
+                const pixelSize = 20;
                 
                 // Aplicar pixelación
-                for (let py = 0; py < height; py += pixelSize) {
-                    for (let px = 0; px < width; px += pixelSize) {
+                for (let py = 0; py < expandedHeight; py += pixelSize) {
+                    for (let px = 0; px < expandedWidth; px += pixelSize) {
                         let r = 0, g = 0, b = 0, count = 0;
                         
-                        for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
-                            for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
-                                const idx = ((py + dy) * width + (px + dx)) * 4;
+                        for (let dy = 0; dy < pixelSize && py + dy < expandedHeight; dy++) {
+                            for (let dx = 0; dx < pixelSize && px + dx < expandedWidth; dx++) {
+                                const idx = ((py + dy) * expandedWidth + (px + dx)) * 4;
                                 r += data[idx];
                                 g += data[idx + 1];
                                 b += data[idx + 2];
@@ -319,9 +327,9 @@
                             g = Math.floor(g / count);
                             b = Math.floor(b / count);
                             
-                            for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
-                                for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
-                                    const idx = ((py + dy) * width + (px + dx)) * 4;
+                            for (let dy = 0; dy < pixelSize && py + dy < expandedHeight; dy++) {
+                                for (let dx = 0; dx < pixelSize && px + dx < expandedWidth; dx++) {
+                                    const idx = ((py + dy) * expandedWidth + (px + dx)) * 4;
                                     data[idx] = r;
                                     data[idx + 1] = g;
                                     data[idx + 2] = b;
@@ -331,44 +339,64 @@
                     }
                 }
                 
-                // Poner la imagen pixelada de vuelta en el canvas temporal
+                // Poner la imagen pixelada de vuelta
                 tempCtx.putImageData(imageData, 0, 0);
                 
                 // Dibujar la región pixelada en el canvas principal
-                ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+                ctx.drawImage(
+                    tempCanvas, 
+                    0, 0, expandedWidth, expandedHeight,
+                    expandedX, expandedY, expandedWidth, expandedHeight
+                );
                 
             } catch (error) {
                 debugLog("Error en pixelación: " + error.message);
             }
         }
 
-        // Función para blur - MEJORADA
+        // Función para blur - VERSIÓN MEJORADA
         function blurFace(x, y, width, height) {
-            debugLog(`Aplicando blur a: x=${Math.round(x)}, y=${Math.round(y)}, w=${Math.round(width)}, h=${Math.round(height)}`);
+            debugLog(`Aplicando blur a área: ${Math.round(width)}x${Math.round(height)}`);
             
             try {
                 // Crear canvas temporal
                 const tempCanvas = document.createElement('canvas');
                 const tempCtx = tempCanvas.getContext('2d');
-                tempCanvas.width = width;
-                tempCanvas.height = height;
                 
-                // Dibujar la región del VIDEO (no del canvas)
-                tempCtx.drawImage(video, x, y, width, height, 0, 0, width, height);
+                // Hacer el área MÁS GRANDE
+                const scale = 1.5; // Aumentar área en 50%
+                const expandedWidth = width * scale;
+                const expandedHeight = height * scale;
+                const expandedX = Math.max(0, x - (expandedWidth - width) / 2);
+                const expandedY = Math.max(0, y - (expandedHeight - height) / 2);
                 
-                // Aplicar blur fuerte
-                tempCtx.filter = 'blur(25px)';
+                tempCanvas.width = expandedWidth;
+                tempCanvas.height = expandedHeight;
+                
+                // Dibujar la región del VIDEO
+                tempCtx.drawImage(
+                    video, 
+                    expandedX, expandedY, expandedWidth, expandedHeight,
+                    0, 0, expandedWidth, expandedHeight
+                );
+                
+                // Aplicar blur MUY FUERTE
+                tempCtx.filter = 'blur(35px)';
                 tempCtx.drawImage(tempCanvas, 0, 0);
                 
                 // Dibujar la región con blur en el canvas principal
-                ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+                ctx.drawImage(
+                    tempCanvas, 
+                    0, 0, expandedWidth, expandedHeight,
+                    expandedX, expandedY, expandedWidth, expandedHeight
+                );
                 
             } catch (error) {
                 debugLog("Error en blur: " + error.message);
             }
         }
 
-        // Procesar video - CORREGIDO
+        // Procesar video
         async function processVideo(timestamp) {
             if (!stream || isProcessing) {
                 animationId = requestAnimationFrame(processVideo);
@@ -388,8 +416,25 @@
 
                 // PRIMERO: Dibujar video completo en canvas
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-                // SEGUNDO: Si hay filtro activo, procesar rostros SOBRE el video
+                // DEBUG: Dibujar rectángulo rojo donde se supone que está el efecto
+                /*if (currentFilter !== 'none' && faceDetectionModel && predictions && predictions.length > 0) {
+                    const pred = predictions[0];
+                    const start = pred.topLeft;
+                    const end = pred.bottomRight;
+                    const padding = 40;
+                    const debugX = Math.max(0, start[0] - padding);
+                    const debugY = Math.max(0, start[1] - padding);
+                    const debugWidth = Math.min(canvas.width - debugX, (end[0] - start[0]) + padding * 2);
+                    const debugHeight = Math.min(canvas.height - debugY, (end[1] - start[1]) + padding * 2);
+                    
+                    ctx.strokeStyle = 'red';
+                    ctx.lineWidth = 3;
+                    ctx.strokeRect(debugX, debugY, debugWidth, debugHeight);
+                    
+                    ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+                    ctx.fillRect(debugX, debugY, debugWidth, debugHeight);
+                }*/
+                // SEGUNDO: Procesar rostros
                 if (currentFilter !== 'none' && faceDetectionModel) {
                     const predictions = await faceDetectionModel.estimateFaces(video, false);
                     faceCount.textContent = predictions.length;
@@ -408,8 +453,8 @@
                         const width = end[0] - start[0];
                         const height = end[1] - start[1];
                         
-                        // Aumentar área para cubrir mejor el rostro
-                        const padding = 15;
+                        // Aumentar área SIGNIFICATIVAMENTE
+                        const padding = 40; // Mucho más padding
                         const finalX = Math.max(0, x - padding);
                         const finalY = Math.max(0, y - padding);
                         const finalWidth = Math.min(canvas.width - finalX, width + padding * 2);
@@ -439,14 +484,14 @@
             currentFilter = 'blur';
             faceBlurBtn.classList.add('active');
             pixelateBtn.classList.remove('active');
-            updateStatus("Filtro: Blur Facial activado");
+            updateStatus("Filtro: Blur Facial activado - Área ampliada");
         });
         
         pixelateBtn.addEventListener('click', () => {
             currentFilter = 'pixelate';
             pixelateBtn.classList.add('active');
             faceBlurBtn.classList.remove('active');
-            updateStatus("Filtro: Pixelación activada");
+            updateStatus("Filtro: Pixelación activada - Área ampliada");
         });
 
         // Estado inicial
@@ -455,7 +500,7 @@
         // Cargar modelo al iniciar
         loadModel();
 
-        debugLog("Página cargada - Esperando interacción");
+        debugLog("Página cargada - Áreas ampliadas al 150%");
     </script>
 </body>
 </html>
