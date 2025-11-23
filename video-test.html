@@ -331,6 +331,8 @@
             
             // Aplicar efecto blur
             blurBtn.addEventListener('click', function() {
+                video.stop();
+                video.play();
                 currentEffect = 'blur';
                 status.textContent = 'Efecto Blur aplicado a los rostros detectados';
                 status.style.backgroundColor = 'rgba(52, 152, 219, 0.3)';
