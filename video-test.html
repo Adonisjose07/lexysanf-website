@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blur Facial - Solución Definitiva</title>
+    <title>Blur Facial - CSS Filters</title>
     <style>
         * {
             margin: 0;
@@ -43,10 +43,29 @@
             background: #000;
         }
         
-        video, canvas {
+        video {
             width: 100%;
             height: auto;
             display: block;
+            transform: scaleX(-1); /* Espejo para selfie */
+        }
+        
+        .face-overlay {
+            position: absolute;
+            border: 3px solid red;
+            background: rgba(255, 0, 0, 0.2);
+            pointer-events: none;
+            transition: all 0.1s ease;
+        }
+        
+        .blur-overlay {
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        
+        .pixelate-overlay {
+            background: repeating-conic-gradient(#000 0% 25%, transparent 0% 50%) 0% 0% / 20px 20px;
+            mix-blend-mode: darken;
         }
         
         .controls {
@@ -90,13 +109,13 @@
 <body>
     <div class="container">
         <header>
-            <h1>Blur Facial - Solución Definitiva</h1>
-            <p>Enfoque directo sin canvas temporal</p>
+            <h1>Blur Facial - CSS Filters</h1>
+            <p>Solución que funciona en Android</p>
         </header>
         
         <div class="video-container">
             <video id="video" autoplay playsinline muted></video>
-            <canvas id="output"></canvas>
+            <div id="overlayContainer"></div>
         </div>
         
         <div class="status">
@@ -117,8 +136,7 @@
     <script>
         // Elementos del DOM
         const video = document.getElementById('video');
-        const canvas = document.getElementById('output');
-        const ctx = canvas.getContext('2d');
+        const overlayContainer = document.getElementById('overlayContainer');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
         const faceBlurBtn = document.getElementById('faceBlurBtn');
@@ -172,9 +190,6 @@
 
                 await video.play();
 
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-
                 setButtonsState(true);
                 updateStatus("Cámara activa - Selecciona un filtro");
                 
@@ -199,7 +214,7 @@
                 animationId = null;
             }
             
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            overlayContainer.innerHTML = '';
             setButtonsState(false);
             currentFilter = 'none';
             updateStatus("Cámara detenida");
@@ -216,83 +231,36 @@
             }
         }
 
-        // Función SIMPLIFICADA para pixelar - usando putImageData directamente
-        function applyPixelation(x, y, width, height) {
-            console.log(`Pixelando en: ${x}, ${y}, ${width}, ${height}`);
+        // Crear overlay para efecto
+        function createFaceOverlay(x, y, width, height, filterType) {
+            const overlay = document.createElement('div');
+            overlay.className = 'face-overlay';
             
-            // Obtener la región directamente del canvas
-            const imageData = ctx.getImageData(x, y, width, height);
-            const data = imageData.data;
+            // Ajustar coordenadas para el modo espejo
+            const mirrorX = video.videoWidth - x - width;
             
-            // Pixelación muy gruesa para que sea visible
-            const pixelSize = 20;
+            overlay.style.left = mirrorX + 'px';
+            overlay.style.top = y + 'px';
+            overlay.style.width = width + 'px';
+            overlay.style.height = height + 'px';
             
-            for (let py = 0; py < height; py += pixelSize) {
-                for (let px = 0; px < width; px += pixelSize) {
-                    let r = 0, g = 0, b = 0, count = 0;
-                    
-                    // Calcular color promedio del bloque
-                    for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
-                        for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
-                            const idx = ((py + dy) * width + (px + dx)) * 4;
-                            r += data[idx];
-                            g += data[idx + 1];
-                            b += data[idx + 2];
-                            count++;
-                        }
-                    }
-                    
-                    if (count > 0) {
-                        r = Math.floor(r / count);
-                        g = Math.floor(g / count);
-                        b = Math.floor(b / count);
-                        
-                        // Aplicar el color promedio a todo el bloque
-                        for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
-                            for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
-                                const idx = ((py + dy) * width + (px + dx)) * 4;
-                                data[idx] = r;
-                                data[idx + 1] = g;
-                                data[idx + 2] = b;
-                            }
-                        }
-                    }
-                }
+            if (filterType === 'blur') {
+                overlay.classList.add('blur-overlay');
+            } else if (filterType === 'pixelate') {
+                overlay.classList.add('pixelate-overlay');
             }
             
-            // Volver a poner la imagen procesada
-            ctx.putImageData(imageData, x, y);
+            return overlay;
         }
 
-        // Función SIMPLIFICADA para blur - usando composición
-        function applyBlur(x, y, width, height) {
-            console.log(`Aplicando blur en: ${x}, ${y}, ${width}, ${height}`);
-            
-            // Guardar el estado del contexto
-            ctx.save();
-            
-            // Crear un patrón de sombra muy fuerte
-            ctx.shadowColor = 'rgba(0,0,0,0.9)';
-            ctx.shadowBlur = 50;
-            ctx.shadowOffsetX = 0;
-            ctx.shadowOffsetY = 0;
-            
-            // Dibujar un rectángulo con sombra en el área
-            ctx.fillStyle = 'rgba(0,0,0,0.1)';
-            ctx.fillRect(x, y, width, height);
-            
-            // Restaurar el contexto
-            ctx.restore();
-        }
-
-        // Procesar video - ENFOQUE DIRECTO
+        // Procesar video con overlays CSS
         async function processVideo() {
             if (!stream) return;
 
-            // 1. Dibujar el video en el canvas
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            // Limpiar overlays anteriores
+            overlayContainer.innerHTML = '';
 
-            // 2. Si hay filtro activo, procesar rostros
+            // Procesar rostros
             if (currentFilter !== 'none' && faceDetectionModel) {
                 try {
                     const predictions = await faceDetectionModel.estimateFaces(video, false);
@@ -304,24 +272,16 @@
                             const start = prediction.topLeft;
                             const end = prediction.bottomRight;
                             
-                            // Área MUY ampliada
-                            const padding = 60;
+                            // Área ampliada
+                            const padding = 40;
                             const x = Math.max(0, start[0] - padding);
                             const y = Math.max(0, start[1] - padding);
-                            const width = Math.min(canvas.width - x, (end[0] - start[0]) + padding * 2);
-                            const height = Math.min(canvas.height - y, (end[1] - start[1]) + padding * 2);
+                            const width = Math.min(video.videoWidth - x, (end[0] - start[0]) + padding * 2);
+                            const height = Math.min(video.videoHeight - y, (end[1] - start[1]) + padding * 2);
 
-                            // Dibujar rectángulo de debug (siempre visible)
-                            ctx.strokeStyle = 'red';
-                            ctx.lineWidth = 3;
-                            ctx.strokeRect(x, y, width, height);
-
-                            // Aplicar filtro
-                            if (currentFilter === 'blur') {
-                                applyBlur(x, y, width, height);
-                            } else if (currentFilter === 'pixelate') {
-                                applyPixelation(x, y, width, height);
-                            }
+                            // Crear overlay con efecto
+                            const overlay = createFaceOverlay(x, y, width, height, currentFilter);
+                            overlayContainer.appendChild(overlay);
                         }
                     }
                 } catch (error) {
@@ -356,7 +316,7 @@
         // Cargar modelo al iniciar
         loadModel();
 
-        console.log("Página cargada - Enfoque directo");
+        console.log("Página cargada - Usando CSS Filters");
     </script>
 </body>
 </html>
