@@ -276,9 +276,9 @@
             const faceCount = document.getElementById('faceCount');
             const loading = document.getElementById('loading');
 
-            const canvas2 = document.getElementById('canvas2');
-            const ctx2 = canvas2.getContext('2d');
-            const video2 = document.getElementById('video2');
+            // Crear un canvas temporal para aplicar blur
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
             
             // Variables de estado
             let stream = null;
@@ -411,9 +411,6 @@
                 // Extraer la región del rostro
                 const faceImageData = ctx.getImageData(x, y, width, height);
                 
-                // Crear un canvas temporal para aplicar blur
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
                 tempCanvas.width = width;
                 tempCanvas.height = height;
                 
@@ -426,26 +423,6 @@
                 
                 // Obtener la imagen con blur
                 const blurredImageData = tempCtx.getImageData(0, 0, width, height);
-
-                // Asegurar que canvas2 tenga las mismas dimensiones que el canvas principal
-                if (canvas2.width !== canvas.width || canvas2.height !== canvas.height) {
-                    canvas2.width = canvas.width;
-                    canvas2.height = canvas.height;
-                    canvas2.style.display = 'block';
-                }
-
-                // Dibujar la región con blur también en canvas2
-                ctx2.putImageData(blurredImageData, x, y);
-
-                // Si video2 aún no está recibiendo el stream del canvas2, asignarlo
-                /*if (!video2.srcObject) {
-                    try {
-                        video2.srcObject = canvas2.captureStream();
-                        video2.play().catch(() => {});
-                    } catch (err) {
-                        console.warn('captureStream no disponible en este navegador:', err);
-                    }
-                }*/
                 
                 // Devolver la imagen con blur al canvas principal
                 ctx.putImageData(blurredImageData, x, y);
