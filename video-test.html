@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filtros IA con TensorFlow.js</title>
+    <title>Blur Facial con TensorFlow.js</title>
     <style>
         * {
             margin: 0;
@@ -175,6 +175,23 @@
             100% { transform: rotate(360deg); }
         }
         
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            text-align: center;
+        }
+        
+        .stat-item {
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4a00e0;
+        }
+        
         footer {
             text-align: center;
             padding: 20px;
@@ -197,8 +214,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>Filtros IA con TensorFlow.js</h1>
-            <p class="subtitle">Aplica efectos de inteligencia artificial a tu video en tiempo real</p>
+            <h1>Blur Facial con TensorFlow.js</h1>
+            <p class="subtitle">Protege tu privacidad desenfocando rostros en tiempo real</p>
         </header>
         
         <div class="content">
@@ -210,10 +227,20 @@
                 
                 <div class="controls">
                     <button id="startBtn" class="active">Iniciar Cámara</button>
-                    <button id="bodySegmentationBtn">Segmentación Corporal</button>
-                    <button id="faceDetectionBtn">Detección Facial</button>
-                    <button id="styleTransferBtn">Transferencia de Estilo</button>
+                    <button id="faceBlurBtn">Blur Facial</button>
+                    <button id="pixelateBtn">Pixelar Rostros</button>
                     <button id="stopBtn">Detener</button>
+                </div>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="faceCount">0</div>
+                        <div>Rostros Detectados</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="fps">0</div>
+                        <div>FPS</div>
+                    </div>
                 </div>
             </div>
             
@@ -238,16 +265,16 @@
                 <div class="info-card">
                     <h2>Instrucciones</h2>
                     <p>1. Haz clic en "Iniciar Cámara" para comenzar</p>
-                    <p>2. Selecciona un filtro de IA para aplicar</p>
-                    <p>3. Los modelos se cargarán automáticamente</p>
-                    <p>4. Usa "Detener" para finalizar</p>
+                    <p>2. Selecciona "Blur Facial" para desenfocar rostros</p>
+                    <p>3. Usa "Pixelar Rostros" para un efecto diferente</p>
+                    <p>4. Los rostros detectados se muestran en el contador</p>
                 </div>
                 
                 <div class="info-card">
                     <h2>Acerca de los Filtros</h2>
-                    <p><strong>Segmentación Corporal:</strong> Aísla personas del fondo</p>
-                    <p><strong>Detección Facial:</strong> Detecta y resalta rostros</p>
-                    <p><strong>Transferencia de Estilo:</strong> Aplica estilos artísticos</p>
+                    <p><strong>Blur Facial:</strong> Aplica desenfoque gaussiano a los rostros detectados</p>
+                    <p><strong>Pixelar Rostros:</strong> Convierte los rostros en bloques pixelados</p>
+                    <p><strong>Sin Filtro:</strong> Muestra el video original sin modificaciones</p>
                 </div>
             </div>
         </div>
@@ -258,13 +285,12 @@
         </div>
         
         <footer>
-            <p>Implementación de TensorFlow.js para filtros de video en tiempo real</p>
+            <p>Implementación de TensorFlow.js para protección de privacidad facial</p>
         </footer>
     </div>
 
     <!-- Cargar TensorFlow.js y modelos -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7"></script>
     
     <script>
@@ -274,24 +300,29 @@
         const ctx = canvas.getContext('2d');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
-        const bodySegmentationBtn = document.getElementById('bodySegmentationBtn');
-        const faceDetectionBtn = document.getElementById('faceDetectionBtn');
-        const styleTransferBtn = document.getElementById('styleTransferBtn');
+        const faceBlurBtn = document.getElementById('faceBlurBtn');
+        const pixelateBtn = document.getElementById('pixelateBtn');
         const cameraStatus = document.getElementById('cameraStatus');
         const modelStatus = document.getElementById('modelStatus');
         const filterStatus = document.getElementById('filterStatus');
+        const faceCount = document.getElementById('faceCount');
+        const fpsCounter = document.getElementById('fps');
         const loading = document.getElementById('loading');
         
         // Variables de estado
         let stream = null;
         let animationId = null;
         let currentFilter = 'none';
-        let bodyPixNet = null;
         let faceDetectionModel = null;
+        let lastTimestamp = 0;
+        let frameCount = 0;
         
         // Actualizar estado en la UI
         function updateStatus(element, text, isActive) {
-            element.textContent = text;
+            const statusText = element.parentElement.querySelector('span');
+            if (statusText) {
+                statusText.textContent = text;
+            }
             element.classList.toggle('active', isActive);
             element.classList.toggle('inactive', !isActive);
         }
@@ -345,11 +376,12 @@
             stopBtn.classList.remove('active');
             
             // Resetear botones de filtro
-            bodySegmentationBtn.classList.remove('active');
-            faceDetectionBtn.classList.remove('active');
-            styleTransferBtn.classList.remove('active');
+            faceBlurBtn.classList.remove('active');
+            pixelateBtn.classList.remove('active');
             
             currentFilter = 'none';
+            faceCount.textContent = '0';
+            fpsCounter.textContent = '0';
         }
         
         // Cargar modelos de TensorFlow.js
@@ -357,21 +389,13 @@
             try {
                 loading.style.display = 'block';
                 
-                // Cargar BodyPix para segmentación corporal
-                bodyPixNet = await bodyPix.load({
-                    architecture: 'MobileNetV1',
-                    outputStride: 16,
-                    multiplier: 0.75,
-                    quantBytes: 2
-                });
-                
                 // Cargar modelo de detección facial
                 faceDetectionModel = await blazeface.load();
                 
                 updateStatus(modelStatus, 'Modelo TensorFlow: Cargado', true);
                 loading.style.display = 'none';
                 
-                console.log('Modelos de TensorFlow.js cargados correctamente');
+                console.log('Modelo de detección facial cargado correctamente');
             } catch (error) {
                 console.error('Error cargando modelos:', error);
                 updateStatus(modelStatus, 'Modelo TensorFlow: Error', false);
@@ -379,23 +403,92 @@
             }
         }
         
+        // Aplicar efecto de blur a una región
+        function applyBlurRegion(x, y, width, height, intensity = 10) {
+            // Crear un canvas temporal para el blur
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            
+            // Dibujar la región en el canvas temporal
+            tempCtx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
+            
+            // Aplicar múltiples pasadas de blur para mayor efecto
+            for (let i = 0; i < intensity; i++) {
+                tempCtx.filter = `blur(${intensity}px)`;
+                tempCtx.drawImage(tempCanvas, 0, 0);
+            }
+            
+            // Dibujar la región con blur de vuelta al canvas principal
+            ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+        }
+        
+        // Aplicar efecto de pixelación a una región
+        function applyPixelateRegion(x, y, width, height, pixelSize = 10) {
+            // Obtener los datos de imagen de la región
+            const imageData = ctx.getImageData(x, y, width, height);
+            const data = imageData.data;
+            
+            // Aplicar pixelación
+            for (let row = 0; row < height; row += pixelSize) {
+                for (let col = 0; col < width; col += pixelSize) {
+                    // Obtener el color promedio del bloque
+                    let r = 0, g = 0, b = 0, count = 0;
+                    
+                    for (let y2 = 0; y2 < pixelSize && row + y2 < height; y2++) {
+                        for (let x2 = 0; x2 < pixelSize && col + x2 < width; x2++) {
+                            const idx = ((row + y2) * width + (col + x2)) * 4;
+                            r += data[idx];
+                            g += data[idx + 1];
+                            b += data[idx + 2];
+                            count++;
+                        }
+                    }
+                    
+                    r = Math.floor(r / count);
+                    g = Math.floor(g / count);
+                    b = Math.floor(b / count);
+                    
+                    // Aplicar el color promedio a todo el bloque
+                    for (let y2 = 0; y2 < pixelSize && row + y2 < height; y2++) {
+                        for (let x2 = 0; x2 < pixelSize && col + x2 < width; x2++) {
+                            const idx = ((row + y2) * width + (col + x2)) * 4;
+                            data[idx] = r;
+                            data[idx + 1] = g;
+                            data[idx + 2] = b;
+                        }
+                    }
+                }
+            }
+            
+            // Volver a dibujar la región pixelada
+            ctx.putImageData(imageData, x, y);
+        }
+        
         // Procesar video frame por frame
-        function processVideo() {
+        function processVideo(timestamp) {
             if (!stream) return;
+            
+            // Calcular FPS
+            frameCount++;
+            if (timestamp - lastTimestamp >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (timestamp - lastTimestamp));
+                fpsCounter.textContent = fps;
+                frameCount = 0;
+                lastTimestamp = timestamp;
+            }
             
             // Dibujar el video en el canvas
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             
             // Aplicar filtro según selección
             switch(currentFilter) {
-                case 'bodySegmentation':
-                    applyBodySegmentation();
+                case 'faceBlur':
+                    applyFaceBlur();
                     break;
-                case 'faceDetection':
-                    applyFaceDetection();
-                    break;
-                case 'styleTransfer':
-                    applyStyleTransfer();
+                case 'pixelate':
+                    applyFacePixelation();
                     break;
                 default:
                     // Sin filtro, solo dibujar video
@@ -405,118 +498,88 @@
             animationId = requestAnimationFrame(processVideo);
         }
         
-        // Aplicar segmentación corporal
-        async function applyBodySegmentation() {
-            if (!bodyPixNet) return;
-            
-            try {
-                // Realizar segmentación
-                const segmentation = await bodyPixNet.segmentPerson(video);
-                
-                // Crear máscara
-                const mask = bodyPix.toMask(segmentation);
-                
-                // Dibujar máscara en el canvas con efecto de color
-                ctx.globalCompositeOperation = 'source-in';
-                ctx.fillStyle = 'rgba(0, 150, 255, 0.7)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                
-                // Restaurar modo de composición
-                ctx.globalCompositeOperation = 'source-over';
-            } catch (error) {
-                console.error('Error en segmentación corporal:', error);
-            }
-        }
-        
-        // Aplicar detección facial
-        async function applyFaceDetection() {
+        // Aplicar blur a los rostros detectados
+        async function applyFaceBlur() {
             if (!faceDetectionModel) return;
             
             try {
                 // Realizar detección facial
                 const predictions = await faceDetectionModel.estimateFaces(video, false);
                 
-                // Dibujar rectángulos alrededor de las caras detectadas
-                ctx.strokeStyle = '#00FF00';
-                ctx.lineWidth = 2;
-                ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
+                // Actualizar contador de rostros
+                faceCount.textContent = predictions.length;
                 
+                // Aplicar blur a cada rostro detectado
                 for (const prediction of predictions) {
-                    // Obtener coordenadas
                     const start = prediction.topLeft;
                     const end = prediction.bottomRight;
-                    const size = [end[0] - start[0], end[1] - start[1]];
+                    const width = end[0] - start[0];
+                    const height = end[1] - start[1];
                     
-                    // Dibujar rectángulo
-                    ctx.strokeRect(start[0], start[1], size[0], size[1]);
-                    ctx.fillRect(start[0], start[1], size[0], size[1]);
+                    // Aumentar ligeramente el área para asegurar que cubra todo el rostro
+                    const padding = 20;
+                    const x = Math.max(0, start[0] - padding);
+                    const y = Math.max(0, start[1] - padding);
+                    const w = Math.min(canvas.width - x, width + padding * 2);
+                    const h = Math.min(canvas.height - y, height + padding * 2);
                     
-                    // Dibujar puntos de referencia faciales
-                    ctx.fillStyle = '#FF0000';
-                    if (prediction.landmarks) {
-                        for (const landmark of prediction.landmarks) {
-                            ctx.beginPath();
-                            ctx.arc(landmark[0], landmark[1], 2, 0, 2 * Math.PI);
-                            ctx.fill();
-                        }
-                    }
-                    ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
+                    // Aplicar efecto de blur
+                    applyBlurRegion(x, y, w, h, 15);
                 }
             } catch (error) {
                 console.error('Error en detección facial:', error);
             }
         }
         
-        // Aplicar transferencia de estilo (efecto simulado)
-        function applyStyleTransfer() {
-            // En una implementación real, aquí cargarías un modelo de transferencia de estilo
-            // Por ahora, simulamos con un efecto de filtro CSS via canvas
+        // Aplicar pixelación a los rostros detectados
+        async function applyFacePixelation() {
+            if (!faceDetectionModel) return;
             
-            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const data = imageData.data;
-            
-            // Aplicar efecto artístico (simulación)
-            for (let i = 0; i < data.length; i += 4) {
-                // Aumentar saturación
-                const r = data[i];
-                const g = data[i + 1];
-                const b = data[i + 2];
+            try {
+                // Realizar detección facial
+                const predictions = await faceDetectionModel.estimateFaces(video, false);
                 
-                // Efecto de pintura al óleo (simplificado)
-                data[i] = Math.min(255, r + 30);     // Más rojo
-                data[i + 1] = Math.max(0, g - 10);   // Menos verde
-                data[i + 2] = Math.min(255, b + 20); // Más azul
+                // Actualizar contador de rostros
+                faceCount.textContent = predictions.length;
+                
+                // Aplicar pixelación a cada rostro detectado
+                for (const prediction of predictions) {
+                    const start = prediction.topLeft;
+                    const end = prediction.bottomRight;
+                    const width = end[0] - start[0];
+                    const height = end[1] - start[1];
+                    
+                    // Aumentar ligeramente el área para asegurar que cubra todo el rostro
+                    const padding = 20;
+                    const x = Math.max(0, start[0] - padding);
+                    const y = Math.max(0, start[1] - padding);
+                    const w = Math.min(canvas.width - x, width + padding * 2);
+                    const h = Math.min(canvas.height - y, height + padding * 2);
+                    
+                    // Aplicar efecto de pixelación
+                    applyPixelateRegion(x, y, w, h, 8);
+                }
+            } catch (error) {
+                console.error('Error en detección facial:', error);
             }
-            
-            ctx.putImageData(imageData, 0, 0);
         }
         
         // Configurar eventos
         startBtn.addEventListener('click', initCamera);
         stopBtn.addEventListener('click', stopCamera);
         
-        bodySegmentationBtn.addEventListener('click', () => {
-            currentFilter = 'bodySegmentation';
-            updateStatus(filterStatus, 'Filtro: Segmentación Corporal', true);
-            bodySegmentationBtn.classList.add('active');
-            faceDetectionBtn.classList.remove('active');
-            styleTransferBtn.classList.remove('active');
+        faceBlurBtn.addEventListener('click', () => {
+            currentFilter = 'faceBlur';
+            updateStatus(filterStatus, 'Filtro: Blur Facial', true);
+            faceBlurBtn.classList.add('active');
+            pixelateBtn.classList.remove('active');
         });
         
-        faceDetectionBtn.addEventListener('click', () => {
-            currentFilter = 'faceDetection';
-            updateStatus(filterStatus, 'Filtro: Detección Facial', true);
-            faceDetectionBtn.classList.add('active');
-            bodySegmentationBtn.classList.remove('active');
-            styleTransferBtn.classList.remove('active');
-        });
-        
-        styleTransferBtn.addEventListener('click', () => {
-            currentFilter = 'styleTransfer';
-            updateStatus(filterStatus, 'Filtro: Transferencia de Estilo', true);
-            styleTransferBtn.classList.add('active');
-            bodySegmentationBtn.classList.remove('active');
-            faceDetectionBtn.classList.remove('active');
+        pixelateBtn.addEventListener('click', () => {
+            currentFilter = 'pixelate';
+            updateStatus(filterStatus, 'Filtro: Pixelar Rostros', true);
+            pixelateBtn.classList.add('active');
+            faceBlurBtn.classList.remove('active');
         });
         
         // Cargar modelos al iniciar la página
