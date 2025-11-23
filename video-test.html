@@ -278,31 +278,6 @@
             let isDetecting = false;
             let currentEffect = 'none'; // 'none', 'blur', 'pixel'
             
-            // Pre-inicializar canvas y precargar el modelo para que las capas de efecto
-            // estén listas antes de iniciar la cámara (no inicia la cámara automáticamente)
-            canvas.width = 640;
-            canvas.height = 480;
-            canvas.style.display = 'block';
-
-            (async function preloadModel() {
-                try {
-                    loading.style.display = 'block';
-                    status.textContent = 'Cargando modelo de detección de rostros...';
-                    model = await blazeface.load();
-                    loading.style.display = 'none';
-                    status.textContent = 'Modelo cargado. Puedes iniciar la cámara.';
-                    status.style.backgroundColor = 'rgba(46, 204, 113, 0.15)';
-                    // Habilitar botones de efectos cuando el modelo esté listo
-                    blurBtn.disabled = false;
-                    pixelBtn.disabled = false;
-                } catch (error) {
-                    console.error('Error cargando el modelo:', error);
-                    loading.style.display = 'none';
-                    status.textContent = 'Error cargando modelo de detección.';
-                    status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
-                }
-            })();
-            
             // Inicializar la cámara
             startBtn.addEventListener('click', async function() {
                 try {
@@ -319,8 +294,19 @@
                         canvas.height = video.videoHeight;
                     });
                     
-                    // El modelo ya se precargó en la carga de la página.
-                    // Solo habilitar/deshabilitar controles relacionados con la cámara.
+                    // Cargar el modelo de detección de rostros
+                    loading.style.display = 'block';
+                    status.textContent = 'Cargando modelo de detección de rostros...';
+                    
+                    model = await blazeface.load();
+                    
+                    loading.style.display = 'none';
+                    status.textContent = 'Modelo cargado. Detectando rostros...';
+                    status.style.backgroundColor = 'rgba(46, 204, 113, 0.3)';
+                    
+                    // Habilitar botones
+                    blurBtn.disabled = false;
+                    pixelBtn.disabled = false;
                     stopBtn.disabled = false;
                     startBtn.disabled = true;
                     
