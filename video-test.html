@@ -417,7 +417,7 @@
                 // PRIMERO: Dibujar video completo en canvas
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 // DEBUG: Dibujar rectángulo rojo donde se supone que está el efecto
-                /*if (currentFilter !== 'none' && faceDetectionModel && predictions && predictions.length > 0) {
+                if (currentFilter !== 'none' && faceDetectionModel && predictions && predictions.length > 0) {
                     const pred = predictions[0];
                     const start = pred.topLeft;
                     const end = pred.bottomRight;
@@ -433,7 +433,7 @@
                     
                     ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
                     ctx.fillRect(debugX, debugY, debugWidth, debugHeight);
-                }*/
+                }
                 // SEGUNDO: Procesar rostros
                 if (currentFilter !== 'none' && faceDetectionModel) {
                     const predictions = await faceDetectionModel.estimateFaces(video, false);
