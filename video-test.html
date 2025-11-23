@@ -277,7 +277,32 @@
             let model = null;
             let isDetecting = false;
             let currentEffect = 'none'; // 'none', 'blur', 'pixel'
-            
+
+            // Inicializar canvas y mostrar capa de efectos antes de iniciar la cámara
+            canvas.width = 640;
+            canvas.height = 480;
+            canvas.style.display = 'block';
+
+            // Cargar el modelo de detección de rostros al inicio para que esté listo
+            (async function loadModelOnStart() {
+                try {
+                    loading.style.display = 'block';
+                    status.textContent = 'Cargando modelo de detección de rostros...';
+                    model = await blazeface.load();
+                    loading.style.display = 'none';
+                    status.textContent = 'Modelo cargado. Puedes iniciar la cámara.';
+                    status.style.backgroundColor = 'rgba(46, 204, 113, 0.15)';
+                    // Habilitar botones de efecto aunque la cámara no esté iniciada
+                    blurBtn.disabled = false;
+                    pixelBtn.disabled = false;
+                } catch (error) {
+                    console.error('Error cargando el modelo:', error);
+                    loading.style.display = 'none';
+                    status.textContent = 'Error cargando modelo de detección.';
+                    status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
+                }
+            })();
+
             // Inicializar la cámara
             startBtn.addEventListener('click', async function() {
                 try {
@@ -285,56 +310,50 @@
                     stream = await navigator.mediaDevices.getUserMedia({ 
                         video: { width: 640, height: 480 } 
                     });
-                    
+
                     video.srcObject = stream;
-                    
-                    // Configurar canvas con las mismas dimensiones que el video
+
+                    // Configurar canvas con las mismas dimensiones que el video cuando esté listo
                     video.addEventListener('loadedmetadata', function() {
-                        canvas.width = video.videoWidth;
-                        canvas.height = video.videoHeight;
+                        canvas.width = video.videoWidth || 640;
+                        canvas.height = video.videoHeight || 480;
                     });
-                    
-                    // Cargar el modelo de detección de rostros
-                    loading.style.display = 'block';
-                    status.textContent = 'Cargando modelo de detección de rostros...';
-                    
-                    model = await blazeface.load();
-                    
-                    loading.style.display = 'none';
-                    status.textContent = 'Modelo cargado. Detectando rostros...';
-                    status.style.backgroundColor = 'rgba(46, 204, 113, 0.3)';
-                    
-                    // Habilitar botones
-                    blurBtn.disabled = false;
-                    pixelBtn.disabled = false;
+
+                    // Habilitar/deshabilitar controles
                     stopBtn.disabled = false;
                     startBtn.disabled = true;
-                    
-                    // Iniciar detección
-                    isDetecting = true;
-                    detectFaces();
-                    
+
+                    // Iniciar detección solo si el modelo ya está cargado
+                    if (model) {
+                        isDetecting = true;
+                        detectFaces();
+                        status.textContent = 'Detectando rostros...';
+                        status.style.backgroundColor = 'rgba(46, 204, 113, 0.3)';
+                    } else {
+                        status.textContent = 'Modelo no listo aún. Espera un momento...';
+                    }
+
                 } catch (error) {
                     console.error('Error al acceder a la cámara:', error);
                     status.textContent = 'Error: No se pudo acceder a la cámara. Asegúrate de permitir el acceso.';
                     status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
                 }
             });
-            
+
             // Aplicar efecto blur
             blurBtn.addEventListener('click', function() {
                 currentEffect = 'blur';
-                status.textContent = 'Efecto Blur aplicado a los rostros detectados';
+                status.textContent = 'Efecto Blur seleccionado';
                 status.style.backgroundColor = 'rgba(52, 152, 219, 0.3)';
             });
-            
+
             // Aplicar efecto pixelado
             pixelBtn.addEventListener('click', function() {
                 currentEffect = 'pixel';
-                status.textContent = 'Efecto Pixelado aplicado a los rostros detectados';
+                status.textContent = 'Efecto Pixelado seleccionado';
                 status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
             });
-            
+
             // Detener la cámara
             stopBtn.addEventListener('click', function() {
                 if (stream) {
@@ -342,42 +361,40 @@
                 }
                 isDetecting = false;
                 video.srcObject = null;
-                
-                // Mostrar la última detección en el canvas
+
+                // Mantener la última imagen en el canvas visible
                 canvas.style.display = 'block';
-                
-                // Deshabilitar botones
-                blurBtn.disabled = true;
-                pixelBtn.disabled = true;
+
+                // Deshabilitar el botón de detener y habilitar iniciar
                 stopBtn.disabled = true;
                 startBtn.disabled = false;
-                
+
                 status.textContent = 'Cámara detenida. Haz clic en "Iniciar Cámara" para comenzar de nuevo.';
                 status.style.backgroundColor = 'rgba(149, 165, 166, 0.3)';
             });
-            
+
             // Función de detección de rostros
             async function detectFaces() {
                 if (!isDetecting || !model) return;
-                
+
                 try {
                     // Realizar predicción
                     const predictions = await model.estimateFaces(video, false);
-                    
+
                     // Dibujar el video en el canvas
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    
+
                     // Actualizar contador de rostros
                     faceCount.textContent = `Rostros detectados: ${predictions.length}`;
-                    
+
                     if (predictions.length > 0) {
                         // Procesar cada rostro detectado
                         predictions.forEach(prediction => {
                             const start = prediction.topLeft;
                             const end = prediction.bottomRight;
                             const size = [end[0] - start[0], end[1] - start[1]];
-                            
+
                             // Aplicar efecto según la selección
                             if (currentEffect === 'blur') {
                                 applyBlurEffect(start[0], start[1], size[0], size[1]);
@@ -386,17 +403,17 @@
                             }
                         });
                     }
-                    
+
                     // Continuar la detección
                     requestAnimationFrame(detectFaces);
-                    
+
                 } catch (error) {
                     console.error('Error en la detección:', error);
                     status.textContent = 'Error en la detección de rostros';
                     status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
                 }
             }
-            
+
             // Aplicar efecto de blur a una región
             function applyBlurEffect(x, y, width, height) {
                 // Extraer la región del rostro
