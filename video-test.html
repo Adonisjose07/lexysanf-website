@@ -3,19 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blur Facial - Android Optimizado</title>
+    <title>Blur Facial - Solución Android</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background: #1a1a2e;
             color: white;
-            min-height: 100vh;
             padding: 10px;
         }
         
@@ -27,47 +26,27 @@
         header {
             text-align: center;
             padding: 15px 0;
-            margin-bottom: 20px;
         }
         
         h1 {
-            font-size: 1.8rem;
-            margin-bottom: 8px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        }
-        
-        .subtitle {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        .video-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 15px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
+            font-size: 1.5rem;
+            margin-bottom: 5px;
         }
         
         .video-container {
             position: relative;
             width: 100%;
-            height: 0;
-            padding-bottom: 75%;
-            margin-bottom: 15px;
+            max-width: 500px;
+            margin: 0 auto;
             border-radius: 10px;
             overflow: hidden;
             background: #000;
         }
         
         video, canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transform: rotateY(180deg); /* Espejo para móvil */
+            height: auto;
+            display: block;
         }
         
         .controls {
@@ -76,206 +55,100 @@
             gap: 8px;
             justify-content: center;
             margin: 15px 0;
+            padding: 0 10px;
         }
         
         button {
             padding: 12px 16px;
             border: none;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            background: #4a00e0;
             color: white;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
             flex: 1;
             min-width: 120px;
         }
         
-        button:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        
-        button.active {
-            background: #4a00e0;
-            box-shadow: 0 0 10px rgba(74, 0, 224, 0.5);
-        }
-        
         button:disabled {
-            opacity: 0.5;
+            background: #666;
             cursor: not-allowed;
         }
         
-        .info-section {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            padding: 15px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .info-card {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-        
-        h2 {
-            margin-bottom: 12px;
-            font-size: 1.3rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            padding-bottom: 8px;
+        .active {
+            background: #00ff00;
+            color: #000;
         }
         
         .status {
-            display: flex;
-            align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            margin-right: 8px;
-            flex-shrink: 0;
-        }
-        
-        .status-dot.active {
-            background: #00ff00;
-            box-shadow: 0 0 8px #00ff00;
-        }
-        
-        .status-dot.inactive {
-            background: #ff0000;
-        }
-        
-        .loading {
             text-align: center;
-            padding: 20px;
-            display: none;
-        }
-        
-        .spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top: 3px solid white;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 12px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            margin: 10px 0;
+            font-size: 0.9rem;
         }
         
         .stats {
             display: flex;
             justify-content: space-around;
-            margin-top: 12px;
+            margin: 15px 0;
             text-align: center;
-            font-size: 0.9rem;
         }
         
         .stat-value {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: bold;
-            color: #4a00e0;
+            color: #00ff00;
         }
         
         .debug {
             background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            margin: 10px;
             border-radius: 5px;
-            padding: 8px;
-            margin-top: 10px;
             font-size: 0.8rem;
-            display: none;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 15px;
-            margin-top: 20px;
-            font-size: 0.8rem;
-            opacity: 0.7;
+            max-height: 150px;
+            overflow-y: auto;
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Blur Facial - Android</h1>
-            <p class="subtitle">Optimizado para dispositivos móviles</p>
+            <h1>Blur Facial Android</h1>
+            <p>Versión simplificada y corregida</p>
         </header>
         
-        <div class="video-section">
-            <div class="video-container">
-                <video id="video" autoplay playsinline muted></video>
-                <canvas id="output"></canvas>
-            </div>
-            
-            <div class="controls">
-                <button id="startBtn" class="active">Iniciar Cámara</button>
-                <button id="faceBlurBtn" disabled>Blur Facial</button>
-                <button id="pixelateBtn" disabled>Pixelar Rostros</button>
-                <button id="stopBtn" disabled>Detener</button>
-            </div>
-            
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-value" id="faceCount">0</div>
-                    <div>Rostros</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="fps">0</div>
-                    <div>FPS</div>
-                </div>
-            </div>
-            
-            <div class="debug" id="debugInfo"></div>
+        <div class="video-container">
+            <video id="video" autoplay playsinline muted></video>
+            <canvas id="output"></canvas>
         </div>
         
-        <div class="info-section">
-            <div class="info-card">
-                <h2>Estado del Sistema</h2>
-                <div class="status">
-                    <div id="cameraStatus" class="status-dot inactive"></div>
-                    <span>Cámara: Inactiva</span>
-                </div>
-                <div class="status">
-                    <div id="modelStatus" class="status-dot inactive"></div>
-                    <span>Modelo TensorFlow: Cargando...</span>
-                </div>
-                <div class="status">
-                    <div id="filterStatus" class="status-dot inactive"></div>
-                    <span>Filtro: Ninguno</span>
-                </div>
+        <div class="status">
+            <span id="statusText">Presiona "Iniciar Cámara"</span>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn">Iniciar Cámara</button>
+            <button id="faceBlurBtn" disabled>Blur Facial</button>
+            <button id="pixelateBtn" disabled>Pixelar Rostros</button>
+            <button id="stopBtn" disabled>Detener</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-value" id="faceCount">0</div>
+                <div>Rostros Detectados</div>
             </div>
-            
-            <div class="info-card">
-                <h2>Instrucciones para Android</h2>
-                <p>1. Asegúrate de permitir el acceso a la cámara</p>
-                <p>2. Usa Chrome o Firefox (no Safari)</p>
-                <p>3. Espera a que cargue el modelo de IA</p>
-                <p>4. Si falla, recarga la página</p>
+            <div class="stat-item">
+                <div class="stat-value" id="fps">0</div>
+                <div>FPS</div>
             </div>
         </div>
         
-        <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Cargando modelos de TensorFlow.js...</p>
-            <p id="loadingDetail">Inicializando...</p>
+        <div class="debug" id="debugInfo">
+            Estado de depuración:<br>
         </div>
-        
-        <footer>
-            <p>Funciona mejor con Chrome en Android. HTTPS requerido.</p>
-        </footer>
     </div>
 
-    <!-- Cargar TensorFlow.js y modelos -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@3.18.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface@0.0.7"></script>
     
@@ -288,13 +161,9 @@
         const stopBtn = document.getElementById('stopBtn');
         const faceBlurBtn = document.getElementById('faceBlurBtn');
         const pixelateBtn = document.getElementById('pixelateBtn');
-        const cameraStatus = document.getElementById('cameraStatus');
-        const modelStatus = document.getElementById('modelStatus');
-        const filterStatus = document.getElementById('filterStatus');
+        const statusText = document.getElementById('statusText');
         const faceCount = document.getElementById('faceCount');
         const fpsCounter = document.getElementById('fps');
-        const loading = document.getElementById('loading');
-        const loadingDetail = document.getElementById('loadingDetail');
         const debugInfo = document.getElementById('debugInfo');
 
         // Variables de estado
@@ -304,22 +173,18 @@
         let faceDetectionModel = null;
         let lastTimestamp = 0;
         let frameCount = 0;
-        let isProcessing = false;
 
         // Debug info
         function debugLog(message) {
-            debugInfo.innerHTML += message + '<br>';
+            const now = new Date().toLocaleTimeString();
+            debugInfo.innerHTML += `${now}: ${message}<br>`;
             debugInfo.scrollTop = debugInfo.scrollHeight;
         }
 
-        // Actualizar estado en la UI
-        function updateStatus(element, text, isActive) {
-            const statusText = element.parentElement.querySelector('span');
-            if (statusText) {
-                statusText.textContent = text;
-            }
-            element.classList.toggle('active', isActive);
-            element.classList.toggle('inactive', !isActive);
+        // Actualizar estado
+        function updateStatus(message) {
+            statusText.textContent = message;
+            debugLog(message);
         }
 
         // Habilitar/deshabilitar botones
@@ -328,28 +193,26 @@
             stopBtn.disabled = !cameraActive;
             faceBlurBtn.disabled = !cameraActive;
             pixelateBtn.disabled = !cameraActive;
+            
+            // Resetear clases activas
+            faceBlurBtn.classList.remove('active');
+            pixelateBtn.classList.remove('active');
         }
 
-        // Inicializar cámara - optimizado para Android
+        // Inicializar cámara
         async function initCamera() {
             try {
-                loading.style.display = 'block';
-                loadingDetail.textContent = 'Solicitando acceso a cámara...';
+                updateStatus("Solicitando acceso a cámara...");
                 
-                // Configuración optimizada para Android
                 const constraints = {
                     video: {
                         width: { ideal: 640 },
                         height: { ideal: 480 },
-                        facingMode: 'user', // Cámara frontal
-                        frameRate: { ideal: 30 }
-                    },
-                    audio: false
+                        facingMode: 'user'
+                    }
                 };
 
                 stream = await navigator.mediaDevices.getUserMedia(constraints);
-                
-                loadingDetail.textContent = 'Configurando video...';
                 video.srcObject = stream;
 
                 // Esperar a que el video esté listo
@@ -359,40 +222,25 @@
                     };
                 });
 
-                // Configurar canvas con las dimensiones correctas
+                await video.play();
+
+                // Configurar canvas
                 canvas.width = video.videoWidth;
                 canvas.height = video.videoHeight;
                 
-                debugLog(`Canvas: ${canvas.width}x${canvas.height}`);
-                debugLog(`Video: ${video.videoWidth}x${video.videoHeight}`);
+                debugLog(`Video dimensiones: ${video.videoWidth}x${video.videoHeight}`);
+                debugLog(`Canvas dimensiones: ${canvas.width}x${canvas.height}`);
 
-                updateStatus(cameraStatus, 'Cámara: Activa', true);
                 setButtonsState(true);
+                updateStatus("Cámara activa - Selecciona un filtro");
                 
-                // Iniciar procesamiento de video
+                // Iniciar procesamiento
                 processVideo();
-                
-                loading.style.display = 'none';
-                debugInfo.style.display = 'block';
-                debugLog('Cámara iniciada correctamente');
 
             } catch (error) {
-                console.error('Error al acceder a la cámara:', error);
-                loading.style.display = 'none';
-                
-                let errorMsg = 'Error desconocido';
-                if (error.name === 'NotAllowedError') {
-                    errorMsg = 'Permiso de cámara denegado. Por favor, permite el acceso a la cámara.';
-                } else if (error.name === 'NotFoundError') {
-                    errorMsg = 'No se encontró cámara en el dispositivo.';
-                } else if (error.name === 'NotSupportedError') {
-                    errorMsg = 'Navegador no compatible. Usa Chrome o Firefox.';
-                } else if (error.name === 'NotReadableError') {
-                    errorMsg = 'La cámara está siendo usada por otra aplicación.';
-                }
-                
-                alert('Error: ' + errorMsg);
-                debugLog('ERROR: ' + errorMsg);
+                console.error('Error:', error);
+                updateStatus("Error: " + error.message);
+                alert('Error al acceder a la cámara: ' + error.message);
             }
         }
 
@@ -409,279 +257,178 @@
             }
             
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            updateStatus(cameraStatus, 'Cámara: Inactiva', false);
-            updateStatus(filterStatus, 'Filtro: Ninguno', false);
             setButtonsState(false);
-            
-            faceBlurBtn.classList.remove('active');
-            pixelateBtn.classList.remove('active');
-            
             currentFilter = 'none';
             faceCount.textContent = '0';
             fpsCounter.textContent = '0';
-            isProcessing = false;
-            
-            debugLog('Cámara detenida');
+            updateStatus("Cámara detenida");
         }
 
-        // Cargar modelos de TensorFlow.js con manejo de errores
-        async function loadModels() {
+        // Cargar modelo de detección facial
+        async function loadModel() {
             try {
-                loading.style.display = 'block';
-                loadingDetail.textContent = 'Descargando TensorFlow.js...';
-                
-                // Esperar a que TensorFlow esté listo
-                await tf.ready();
-                debugLog('TensorFlow.js cargado');
-                
-                loadingDetail.textContent = 'Cargando modelo de detección facial...';
-                
-                // Cargar modelo de detección facial
+                updateStatus("Cargando modelo de IA...");
                 faceDetectionModel = await blazeface.load();
-                
-                updateStatus(modelStatus, 'Modelo TensorFlow: Cargado', true);
-                loading.style.display = 'none';
-                
-                debugLog('Modelo de detección facial cargado');
-                console.log('Modelo de detección facial cargado correctamente');
-                
+                updateStatus("Modelo cargado - Listo para iniciar cámara");
+                debugLog("Modelo de detección facial cargado correctamente");
             } catch (error) {
-                console.error('Error cargando modelos:', error);
-                updateStatus(modelStatus, 'Modelo TensorFlow: Error', false);
-                loading.style.display = 'none';
-                
-                debugLog('ERROR cargando modelo: ' + error.message);
-                alert('Error cargando el modelo de IA. Recarga la página.');
+                updateStatus("Error cargando modelo");
+                debugLog("ERROR cargando modelo: " + error.message);
             }
         }
 
-        // Aplicar efecto de blur a una región - optimizado
-        function applyBlurRegion(x, y, width, height) {
-            // Crear un canvas temporal para el blur
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = Math.max(1, width);
-            tempCanvas.height = Math.max(1, height);
+        // Función SIMPLIFICADA para pixelar región
+        function pixelateFace(x, y, width, height) {
+            debugLog(`Pixelando rostro en: x=${x}, y=${y}, w=${width}, h=${height}`);
             
-            try {
-                // Dibujar la región en el canvas temporal
-                tempCtx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
-                
-                // Aplicar blur (una sola pasada para mejor rendimiento)
-                tempCtx.filter = 'blur(15px)';
-                tempCtx.drawImage(tempCanvas, 0, 0);
-                
-                // Dibujar la región con blur de vuelta al canvas principal
-                ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
-            } catch (e) {
-                console.warn('Error aplicando blur:', e);
-            }
-        }
-
-        // Aplicar efecto de pixelación a una región - optimizado
-        function applyPixelateRegion(x, y, width, height) {
-            try {
-                // Obtener los datos de imagen de la región
-                const imageData = ctx.getImageData(x, y, width, height);
-                const data = imageData.data;
-                const pixelSize = 8; // Tamaño fijo para mejor rendimiento
-                
-                // Aplicar pixelación
-                for (let row = 0; row < height; row += pixelSize) {
-                    for (let col = 0; col < width; col += pixelSize) {
-                        // Obtener el color promedio del bloque
-                        let r = 0, g = 0, b = 0, count = 0;
-                        
-                        for (let y2 = 0; y2 < pixelSize && row + y2 < height; y2++) {
-                            for (let x2 = 0; x2 < pixelSize && col + x2 < width; x2++) {
-                                const idx = ((row + y2) * width + (col + x2)) * 4;
-                                r += data[idx];
-                                g += data[idx + 1];
-                                b += data[idx + 2];
-                                count++;
-                            }
+            // Obtener la región del rostro
+            const imageData = ctx.getImageData(x, y, width, height);
+            const data = imageData.data;
+            
+            // Tamaño del pixel (más grande para mejor visibilidad)
+            const pixelSize = 10;
+            
+            // Aplicar pixelación
+            for (let py = 0; py < height; py += pixelSize) {
+                for (let px = 0; px < width; px += pixelSize) {
+                    // Obtener color promedio del bloque
+                    let r = 0, g = 0, b = 0, count = 0;
+                    
+                    for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
+                        for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
+                            const idx = ((py + dy) * width + (px + dx)) * 4;
+                            r += data[idx];
+                            g += data[idx + 1];
+                            b += data[idx + 2];
+                            count++;
                         }
+                    }
+                    
+                    if (count > 0) {
+                        r = Math.floor(r / count);
+                        g = Math.floor(g / count);
+                        b = Math.floor(b / count);
                         
-                        if (count > 0) {
-                            r = Math.floor(r / count);
-                            g = Math.floor(g / count);
-                            b = Math.floor(b / count);
-                            
-                            // Aplicar el color promedio a todo el bloque
-                            for (let y2 = 0; y2 < pixelSize && row + y2 < height; y2++) {
-                                for (let x2 = 0; x2 < pixelSize && col + x2 < width; x2++) {
-                                    const idx = ((row + y2) * width + (col + x2)) * 4;
-                                    data[idx] = r;
-                                    data[idx + 1] = g;
-                                    data[idx + 2] = b;
-                                }
+                        // Aplicar el color a todo el bloque
+                        for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
+                            for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
+                                const idx = ((py + dy) * width + (px + dx)) * 4;
+                                data[idx] = r;
+                                data[idx + 1] = g;
+                                data[idx + 2] = b;
                             }
                         }
                     }
                 }
-                
-                // Volver a dibujar la región pixelada
-                ctx.putImageData(imageData, x, y);
-            } catch (e) {
-                console.warn('Error aplicando pixelación:', e);
             }
+            
+            // Dibujar de vuelta
+            ctx.putImageData(imageData, x, y);
         }
 
-        // Procesar video frame por frame - optimizado para Android
-        function processVideo(timestamp) {
-            if (!stream || isProcessing) {
-                animationId = requestAnimationFrame(processVideo);
-                return;
+        // Función SIMPLIFICADA para blur
+        function blurFace(x, y, width, height) {
+            debugLog(`Aplicando blur a: x=${x}, y=${y}, w=${width}, h=${height}`);
+            
+            // Crear canvas temporal
+            const tempCanvas = document.createElement('canvas');
+            const tempCtx = tempCanvas.getContext('2d');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            
+            // Copiar la región
+            tempCtx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
+            
+            // Aplicar blur fuerte
+            tempCtx.filter = 'blur(20px)';
+            tempCtx.drawImage(tempCanvas, 0, 0);
+            
+            // Dibujar de vuelta
+            ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+        }
+
+        // Procesar video
+        async function processVideo(timestamp) {
+            if (!stream) return;
+
+            // Calcular FPS
+            frameCount++;
+            if (timestamp - lastTimestamp >= 1000) {
+                fpsCounter.textContent = Math.round((frameCount * 1000) / (timestamp - lastTimestamp));
+                frameCount = 0;
+                lastTimestamp = timestamp;
             }
 
-            isProcessing = true;
+            // Dibujar video en canvas (sin transformaciones)
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            try {
-                // Calcular FPS
-                frameCount++;
-                if (timestamp - lastTimestamp >= 1000) {
-                    const fps = Math.round((frameCount * 1000) / (timestamp - lastTimestamp));
-                    fpsCounter.textContent = fps;
-                    frameCount = 0;
-                    lastTimestamp = timestamp;
+            // Si hay filtro activo, procesar rostros
+            if (currentFilter !== 'none' && faceDetectionModel) {
+                try {
+                    const predictions = await faceDetectionModel.estimateFaces(video, false);
+                    faceCount.textContent = predictions.length;
+                    
+                    if (predictions.length > 0) {
+                        debugLog(`Detectados ${predictions.length} rostros`);
+                    }
+
+                    for (const prediction of predictions) {
+                        const start = prediction.topLeft;
+                        const end = prediction.bottomRight;
+                        
+                        // Coordenadas DIRECTAS sin transformación
+                        const x = start[0];
+                        const y = start[1];
+                        const width = end[0] - start[0];
+                        const height = end[1] - start[1];
+                        
+                        // Aumentar área ligeramente
+                        const padding = 10;
+                        const finalX = Math.max(0, x - padding);
+                        const finalY = Math.max(0, y - padding);
+                        const finalWidth = Math.min(canvas.width - finalX, width + padding * 2);
+                        const finalHeight = Math.min(canvas.height - finalY, height + padding * 2);
+
+                        // Aplicar filtro según selección
+                        if (currentFilter === 'pixelate') {
+                            pixelateFace(finalX, finalY, finalWidth, finalHeight);
+                        } else if (currentFilter === 'blur') {
+                            blurFace(finalX, finalY, finalWidth, finalHeight);
+                        }
+                    }
+                } catch (error) {
+                    debugLog("Error en detección: " + error.message);
                 }
-
-                // Dibujar el video en el canvas (modo espejo para móvil)
-                ctx.save();
-                ctx.scale(-1, 1);
-                ctx.drawImage(video, -canvas.width, 0, canvas.width, canvas.height);
-                ctx.restore();
-
-                // Aplicar filtro según selección
-                switch(currentFilter) {
-                    case 'faceBlur':
-                        applyFaceBlur();
-                        break;
-                    case 'pixelate':
-                        applyFacePixelation();
-                        break;
-                    default:
-                        // Sin filtro
-                        break;
-                }
-            } catch (error) {
-                console.error('Error en procesamiento:', error);
-                debugLog('Error en frame: ' + error.message);
             }
 
-            isProcessing = false;
             animationId = requestAnimationFrame(processVideo);
         }
 
-        // Aplicar blur a los rostros detectados
-        async function applyFaceBlur() {
-            if (!faceDetectionModel) return;
-
-            try {
-                // Realizar detección facial
-                const predictions = await faceDetectionModel.estimateFaces(video, false);
-                
-                // Actualizar contador de rostros
-                faceCount.textContent = predictions.length;
-
-                // Aplicar blur a cada rostro detectado
-                for (const prediction of predictions) {
-                    const start = prediction.topLeft;
-                    const end = prediction.bottomRight;
-                    
-                    // Convertir coordenadas para modo espejo
-                    const x = canvas.width - end[0]; // Invertir X por el modo espejo
-                    const y = start[1];
-                    const width = end[0] - start[0];
-                    const height = end[1] - start[1];
-                    
-                    // Aumentar ligeramente el área
-                    const padding = 15;
-                    const finalX = Math.max(0, x - padding);
-                    const finalY = Math.max(0, y - padding);
-                    const finalWidth = Math.min(canvas.width - finalX, width + padding * 2);
-                    const finalHeight = Math.min(canvas.height - finalY, height + padding * 2);
-
-                    // Aplicar efecto de blur
-                    applyBlurRegion(finalX, finalY, finalWidth, finalHeight);
-                }
-            } catch (error) {
-                console.error('Error en detección facial:', error);
-                debugLog('Error detección: ' + error.message);
-            }
-        }
-
-        // Aplicar pixelación a los rostros detectados
-        async function applyFacePixelation() {
-            if (!faceDetectionModel) return;
-
-            try {
-                // Realizar detección facial
-                const predictions = await faceDetectionModel.estimateFaces(video, false);
-                
-                // Actualizar contador de rostros
-                faceCount.textContent = predictions.length;
-
-                // Aplicar pixelación a cada rostro detectado
-                for (const prediction of predictions) {
-                    const start = prediction.topLeft;
-                    const end = prediction.bottomRight;
-                    
-                    // Convertir coordenadas para modo espejo
-                    const x = canvas.width - end[0]; // Invertir X por el modo espejo
-                    const y = start[1];
-                    const width = end[0] - start[0];
-                    const height = end[1] - start[1];
-                    
-                    // Aumentar ligeramente el área
-                    const padding = 15;
-                    const finalX = Math.max(0, x - padding);
-                    const finalY = Math.max(0, y - padding);
-                    const finalWidth = Math.min(canvas.width - finalX, width + padding * 2);
-                    const finalHeight = Math.min(canvas.height - finalY, height + padding * 2);
-
-                    // Aplicar efecto de pixelación
-                    applyPixelateRegion(finalX, finalY, finalWidth, finalHeight);
-                }
-            } catch (error) {
-                console.error('Error en detección facial:', error);
-                debugLog('Error detección: ' + error.message);
-            }
-        }
-
-        // Configurar eventos
+        // Event listeners
         startBtn.addEventListener('click', initCamera);
         stopBtn.addEventListener('click', stopCamera);
         
         faceBlurBtn.addEventListener('click', () => {
-            currentFilter = 'faceBlur';
-            updateStatus(filterStatus, 'Filtro: Blur Facial', true);
+            currentFilter = 'blur';
             faceBlurBtn.classList.add('active');
             pixelateBtn.classList.remove('active');
-            debugLog('Filtro cambiado: Blur Facial');
+            updateStatus("Filtro: Blur Facial activado");
         });
         
         pixelateBtn.addEventListener('click', () => {
             currentFilter = 'pixelate';
-            updateStatus(filterStatus, 'Filtro: Pixelar Rostros', true);
             pixelateBtn.classList.add('active');
             faceBlurBtn.classList.remove('active');
-            debugLog('Filtro cambiado: Pixelar Rostros');
+            updateStatus("Filtro: Pixelación activada");
         });
 
-        // Estado inicial de botones
+        // Estado inicial
         setButtonsState(false);
 
-        // Cargar modelos al iniciar la página
-        window.addEventListener('load', loadModels);
-        
-        // Detener cámara al salir de la página
-        window.addEventListener('beforeunload', stopCamera);
+        // Cargar modelo al iniciar
+        loadModel();
 
-        // Debug: información del navegador
-        debugLog('Navegador: ' + navigator.userAgent);
-        debugLog('Plataforma: ' + navigator.platform);
+        debugLog("Página cargada - Esperando interacción");
     </script>
 </body>
 </html>
