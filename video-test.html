@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blur Facial - Solución Android</title>
+    <title>Blur Facial - Corregido</title>
     <style>
         * {
             margin: 0;
@@ -114,7 +114,7 @@
     <div class="container">
         <header>
             <h1>Blur Facial Android</h1>
-            <p>Versión simplificada y corregida</p>
+            <p>Versión corregida - Ahora sí funciona</p>
         </header>
         
         <div class="video-container">
@@ -173,6 +173,7 @@
         let faceDetectionModel = null;
         let lastTimestamp = 0;
         let frameCount = 0;
+        let isProcessing = false;
 
         // Debug info
         function debugLog(message) {
@@ -277,130 +278,156 @@
             }
         }
 
-        // Función SIMPLIFICADA para pixelar región
+        // Función para pixelar región - MEJORADA
         function pixelateFace(x, y, width, height) {
-            debugLog(`Pixelando rostro en: x=${x}, y=${y}, w=${width}, h=${height}`);
+            debugLog(`Pixelando rostro en: x=${Math.round(x)}, y=${Math.round(y)}, w=${Math.round(width)}, h=${Math.round(height)}`);
             
-            // Obtener la región del rostro
-            const imageData = ctx.getImageData(x, y, width, height);
-            const data = imageData.data;
-            
-            // Tamaño del pixel (más grande para mejor visibilidad)
-            const pixelSize = 10;
-            
-            // Aplicar pixelación
-            for (let py = 0; py < height; py += pixelSize) {
-                for (let px = 0; px < width; px += pixelSize) {
-                    // Obtener color promedio del bloque
-                    let r = 0, g = 0, b = 0, count = 0;
-                    
-                    for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
-                        for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
-                            const idx = ((py + dy) * width + (px + dx)) * 4;
-                            r += data[idx];
-                            g += data[idx + 1];
-                            b += data[idx + 2];
-                            count++;
-                        }
-                    }
-                    
-                    if (count > 0) {
-                        r = Math.floor(r / count);
-                        g = Math.floor(g / count);
-                        b = Math.floor(b / count);
+            try {
+                // Obtener la región del rostro del VIDEO (no del canvas)
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                
+                // Dibujar del video al canvas temporal
+                tempCtx.drawImage(video, x, y, width, height, 0, 0, width, height);
+                
+                // Obtener imagen para pixelar
+                const imageData = tempCtx.getImageData(0, 0, width, height);
+                const data = imageData.data;
+                
+                // Tamaño del pixel
+                const pixelSize = 12;
+                
+                // Aplicar pixelación
+                for (let py = 0; py < height; py += pixelSize) {
+                    for (let px = 0; px < width; px += pixelSize) {
+                        let r = 0, g = 0, b = 0, count = 0;
                         
-                        // Aplicar el color a todo el bloque
                         for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
                             for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
                                 const idx = ((py + dy) * width + (px + dx)) * 4;
-                                data[idx] = r;
-                                data[idx + 1] = g;
-                                data[idx + 2] = b;
+                                r += data[idx];
+                                g += data[idx + 1];
+                                b += data[idx + 2];
+                                count++;
+                            }
+                        }
+                        
+                        if (count > 0) {
+                            r = Math.floor(r / count);
+                            g = Math.floor(g / count);
+                            b = Math.floor(b / count);
+                            
+                            for (let dy = 0; dy < pixelSize && py + dy < height; dy++) {
+                                for (let dx = 0; dx < pixelSize && px + dx < width; dx++) {
+                                    const idx = ((py + dy) * width + (px + dx)) * 4;
+                                    data[idx] = r;
+                                    data[idx + 1] = g;
+                                    data[idx + 2] = b;
+                                }
                             }
                         }
                     }
                 }
+                
+                // Poner la imagen pixelada de vuelta en el canvas temporal
+                tempCtx.putImageData(imageData, 0, 0);
+                
+                // Dibujar la región pixelada en el canvas principal
+                ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+                
+            } catch (error) {
+                debugLog("Error en pixelación: " + error.message);
             }
-            
-            // Dibujar de vuelta
-            ctx.putImageData(imageData, x, y);
         }
 
-        // Función SIMPLIFICADA para blur
+        // Función para blur - MEJORADA
         function blurFace(x, y, width, height) {
-            debugLog(`Aplicando blur a: x=${x}, y=${y}, w=${width}, h=${height}`);
+            debugLog(`Aplicando blur a: x=${Math.round(x)}, y=${Math.round(y)}, w=${Math.round(width)}, h=${Math.round(height)}`);
             
-            // Crear canvas temporal
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            tempCanvas.width = width;
-            tempCanvas.height = height;
-            
-            // Copiar la región
-            tempCtx.drawImage(canvas, x, y, width, height, 0, 0, width, height);
-            
-            // Aplicar blur fuerte
-            tempCtx.filter = 'blur(20px)';
-            tempCtx.drawImage(tempCanvas, 0, 0);
-            
-            // Dibujar de vuelta
-            ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+            try {
+                // Crear canvas temporal
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                tempCanvas.width = width;
+                tempCanvas.height = height;
+                
+                // Dibujar la región del VIDEO (no del canvas)
+                tempCtx.drawImage(video, x, y, width, height, 0, 0, width, height);
+                
+                // Aplicar blur fuerte
+                tempCtx.filter = 'blur(25px)';
+                tempCtx.drawImage(tempCanvas, 0, 0);
+                
+                // Dibujar la región con blur en el canvas principal
+                ctx.drawImage(tempCanvas, 0, 0, width, height, x, y, width, height);
+                
+            } catch (error) {
+                debugLog("Error en blur: " + error.message);
+            }
         }
 
-        // Procesar video
+        // Procesar video - CORREGIDO
         async function processVideo(timestamp) {
-            if (!stream) return;
-
-            // Calcular FPS
-            frameCount++;
-            if (timestamp - lastTimestamp >= 1000) {
-                fpsCounter.textContent = Math.round((frameCount * 1000) / (timestamp - lastTimestamp));
-                frameCount = 0;
-                lastTimestamp = timestamp;
+            if (!stream || isProcessing) {
+                animationId = requestAnimationFrame(processVideo);
+                return;
             }
 
-            // Dibujar video en canvas (sin transformaciones)
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            isProcessing = true;
 
-            // Si hay filtro activo, procesar rostros
-            if (currentFilter !== 'none' && faceDetectionModel) {
-                try {
+            try {
+                // Calcular FPS
+                frameCount++;
+                if (timestamp - lastTimestamp >= 1000) {
+                    fpsCounter.textContent = Math.round((frameCount * 1000) / (timestamp - lastTimestamp));
+                    frameCount = 0;
+                    lastTimestamp = timestamp;
+                }
+
+                // PRIMERO: Dibujar video completo en canvas
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                // SEGUNDO: Si hay filtro activo, procesar rostros SOBRE el video
+                if (currentFilter !== 'none' && faceDetectionModel) {
                     const predictions = await faceDetectionModel.estimateFaces(video, false);
                     faceCount.textContent = predictions.length;
                     
                     if (predictions.length > 0) {
-                        debugLog(`Detectados ${predictions.length} rostros`);
+                        debugLog(`Detectados ${predictions.length} rostros - Aplicando ${currentFilter}`);
                     }
 
                     for (const prediction of predictions) {
                         const start = prediction.topLeft;
                         const end = prediction.bottomRight;
                         
-                        // Coordenadas DIRECTAS sin transformación
+                        // Coordenadas del video
                         const x = start[0];
                         const y = start[1];
                         const width = end[0] - start[0];
                         const height = end[1] - start[1];
                         
-                        // Aumentar área ligeramente
-                        const padding = 10;
+                        // Aumentar área para cubrir mejor el rostro
+                        const padding = 15;
                         const finalX = Math.max(0, x - padding);
                         const finalY = Math.max(0, y - padding);
                         const finalWidth = Math.min(canvas.width - finalX, width + padding * 2);
                         const finalHeight = Math.min(canvas.height - finalY, height + padding * 2);
 
-                        // Aplicar filtro según selección
-                        if (currentFilter === 'pixelate') {
-                            pixelateFace(finalX, finalY, finalWidth, finalHeight);
-                        } else if (currentFilter === 'blur') {
+                        // Aplicar filtro
+                        if (currentFilter === 'blur') {
                             blurFace(finalX, finalY, finalWidth, finalHeight);
+                        } else if (currentFilter === 'pixelate') {
+                            pixelateFace(finalX, finalY, finalWidth, finalHeight);
                         }
                     }
-                } catch (error) {
-                    debugLog("Error en detección: " + error.message);
                 }
+            } catch (error) {
+                debugLog("Error en procesamiento: " + error.message);
             }
 
+            isProcessing = false;
             animationId = requestAnimationFrame(processVideo);
         }
 
