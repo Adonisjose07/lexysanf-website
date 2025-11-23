@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +12,7 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
+
         body {
             background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
             min-height: 100vh;
@@ -21,7 +22,7 @@
             padding: 20px;
             color: white;
         }
-        
+
         .container {
             background-color: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -33,13 +34,13 @@
             text-align: center;
             margin-bottom: 20px;
         }
-        
+
         h1 {
             margin-bottom: 20px;
             font-size: 2.5rem;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
-        
+
         .camera-container {
             position: relative;
             width: 100%;
@@ -49,14 +50,14 @@
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
-        
+
         #video {
             width: 100%;
             height: auto;
             display: block;
             background-color: #000;
         }
-        
+
         #canvas {
             position: absolute;
             top: 0;
@@ -65,7 +66,7 @@
             height: 100%;
             display: none;
         }
-        
+
         .controls {
             display: flex;
             justify-content: center;
@@ -73,7 +74,7 @@
             margin: 20px 0;
             flex-wrap: wrap;
         }
-        
+
         .btn {
             padding: 12px 25px;
             border: none;
@@ -87,51 +88,51 @@
             align-items: center;
             gap: 8px;
         }
-        
+
         .btn i {
             font-size: 1.2rem;
         }
-        
+
         .btn-primary {
             background-color: #3498db;
             color: white;
         }
-        
+
         .btn-primary:hover {
             background-color: #2980b9;
             transform: translateY(-3px);
         }
-        
+
         .btn-secondary {
             background-color: #e74c3c;
             color: white;
         }
-        
+
         .btn-secondary:hover {
             background-color: #c0392b;
             transform: translateY(-3px);
         }
-        
+
         .btn-success {
             background-color: #2ecc71;
             color: white;
         }
-        
+
         .btn-success:hover {
             background-color: #27ae60;
             transform: translateY(-3px);
         }
-        
+
         .btn-warning {
             background-color: #f39c12;
             color: white;
         }
-        
+
         .btn-warning:hover {
             background-color: #e67e22;
             transform: translateY(-3px);
         }
-        
+
         .status {
             margin: 20px 0;
             padding: 15px;
@@ -143,7 +144,7 @@
             align-items: center;
             justify-content: center;
         }
-        
+
         .instructions {
             margin-top: 25px;
             color: white;
@@ -152,45 +153,45 @@
             border-radius: 10px;
             text-align: left;
         }
-        
+
         .instructions h3 {
             margin-bottom: 10px;
             color: #f1c40f;
         }
-        
+
         .instructions ul {
             padding-left: 20px;
         }
-        
+
         .instructions li {
             margin-bottom: 8px;
         }
-        
+
         .face-count {
             font-size: 1.2rem;
             margin: 10px 0;
             color: #f1c40f;
             font-weight: bold;
         }
-        
+
         @media (max-width: 600px) {
             .controls {
                 flex-direction: column;
                 align-items: center;
             }
-            
+
             .btn {
                 width: 100%;
                 max-width: 250px;
                 justify-content: center;
             }
         }
-        
+
         .loading {
             display: none;
             margin: 20px 0;
         }
-        
+
         .spinner {
             border: 5px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
@@ -200,25 +201,31 @@
             animation: spin 1s linear infinite;
             margin: 0 auto;
         }
-        
+
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/blazeface"></script>
 </head>
+
 <body>
     <div class="container">
         <h1><i class="fas fa-camera"></i> Detección de Rostros con Efectos</h1>
-        
+
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Cargando modelos de detección...</p>
         </div>
-        
+
         <div class="camera-container">
             <video id="video" autoplay playsinline></video>
             <canvas id="canvas"></canvas>
@@ -227,9 +234,9 @@
             <video id="video2" autoplay playsinline></video>
             <canvas id="canvas2"></canvas>
         </div>
-        
+
         <div class="face-count" id="faceCount">Rostros detectados: 0</div>
-        
+
         <div class="controls">
             <button class="btn btn-primary" id="startBtn">
                 <i class="fas fa-play"></i> Iniciar Cámara
@@ -244,11 +251,11 @@
                 <i class="fas fa-stop-circle"></i> Detener Cámara
             </button>
         </div>
-        
+
         <div class="status" id="status">
             Haz clic en "Iniciar Cámara" para comenzar
         </div>
-        
+
         <div class="instructions">
             <h3><i class="fas fa-info-circle"></i> Instrucciones:</h3>
             <ul>
@@ -263,7 +270,7 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Elementos DOM
             const video = document.getElementById('video');
             const canvas = document.getElementById('canvas');
@@ -279,113 +286,114 @@
             // Crear un canvas temporal para aplicar blur
             const tempCanvas = document.createElement('canvas');
             const tempCtx = tempCanvas.getContext('2d');
-            
+
             // Variables de estado
             let stream = null;
             let model = null;
             let isDetecting = false;
             let currentEffect = 'none'; // 'none', 'blur', 'pixel'
-            
+
             // Inicializar la cámara
-            startBtn.addEventListener('click', async function() {
+            startBtn.addEventListener('click', async function () {
                 try {
                     status.textContent = 'Solicitando acceso a la cámara...';
-                    stream = await navigator.mediaDevices.getUserMedia({ 
-                        video: { width: 640, height: 480 } 
+                    stream = await navigator.mediaDevices.getUserMedia({
+                        video: { width: 640, height: 480 }
                     });
-                    
+
                     video.srcObject = stream;
-                    
+
                     // Configurar canvas con las mismas dimensiones que el video
-                    video.addEventListener('loadedmetadata', function() {
+                    video.addEventListener('loadedmetadata', function () {
                         canvas.width = video.videoWidth;
                         canvas.height = video.videoHeight;
                     });
-                    
+
                     // Cargar el modelo de detección de rostros
                     loading.style.display = 'block';
                     status.textContent = 'Cargando modelo de detección de rostros...';
-                    
+
                     model = await blazeface.load();
-                    
+
                     loading.style.display = 'none';
                     status.textContent = 'Modelo cargado. Detectando rostros...';
                     status.style.backgroundColor = 'rgba(46, 204, 113, 0.3)';
-                    
+
                     // Habilitar botones
                     blurBtn.disabled = false;
                     pixelBtn.disabled = false;
                     stopBtn.disabled = false;
                     startBtn.disabled = true;
-                    
+
                     // Iniciar detección
                     isDetecting = true;
+                    canvas.style.display = 'block';
                     detectFaces();
-                    
+
                 } catch (error) {
                     console.error('Error al acceder a la cámara:', error);
                     status.textContent = 'Error: No se pudo acceder a la cámara. Asegúrate de permitir el acceso.';
                     status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
                 }
             });
-            
+
             // Aplicar efecto blur
-            blurBtn.addEventListener('click', function() {
+            blurBtn.addEventListener('click', function () {
                 currentEffect = 'blur';
                 status.textContent = 'Efecto Blur aplicado a los rostros detectados';
                 status.style.backgroundColor = 'rgba(52, 152, 219, 0.3)';
             });
-            
+
             // Aplicar efecto pixelado
-            pixelBtn.addEventListener('click', function() {
+            pixelBtn.addEventListener('click', function () {
                 currentEffect = 'pixel';
                 status.textContent = 'Efecto Pixelado aplicado a los rostros detectados';
                 status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
             });
-            
+
             // Detener la cámara
-            stopBtn.addEventListener('click', function() {
+            stopBtn.addEventListener('click', function () {
                 if (stream) {
                     stream.getTracks().forEach(track => track.stop());
                 }
                 isDetecting = false;
                 video.srcObject = null;
-                
+
                 // Mostrar la última detección en el canvas
                 canvas.style.display = 'block';
-                
+
                 // Deshabilitar botones
                 blurBtn.disabled = true;
                 pixelBtn.disabled = true;
                 stopBtn.disabled = true;
                 startBtn.disabled = false;
-                
+
                 status.textContent = 'Cámara detenida. Haz clic en "Iniciar Cámara" para comenzar de nuevo.';
                 status.style.backgroundColor = 'rgba(149, 165, 166, 0.3)';
             });
-            
+
             // Función de detección de rostros
             async function detectFaces() {
                 if (!isDetecting || !model) return;
-                
+
                 try {
                     // Realizar predicción
                     const predictions = await model.estimateFaces(video, false);
-                    
+
                     // Dibujar el video en el canvas
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-                    
+
                     // Actualizar contador de rostros
                     faceCount.textContent = `Rostros detectados: ${predictions.length}`;
-                    
+
                     if (predictions.length > 0) {
                         // Procesar cada rostro detectado
                         predictions.forEach(prediction => {
                             const start = prediction.topLeft;
                             const end = prediction.bottomRight;
                             const size = [end[0] - start[0], end[1] - start[1]];
-                            
+
                             // Aplicar efecto según la selección
                             if (currentEffect === 'blur') {
                                 console.log('Applying blur effect');
@@ -395,56 +403,56 @@
                             }
                         });
                     }
-                    
+
                     // Continuar la detección
                     requestAnimationFrame(detectFaces);
-                    
+
                 } catch (error) {
                     console.error('Error en la detección:', error);
                     status.textContent = 'Error en la detección de rostros';
                     status.style.backgroundColor = 'rgba(231, 76, 60, 0.3)';
                 }
             }
-            
+
             // Aplicar efecto de blur a una región
             function applyBlurEffect(x, y, width, height) {
                 // Extraer la región del rostro
                 const faceImageData = ctx.getImageData(x, y, width, height);
-                
+
                 tempCanvas.width = width;
                 tempCanvas.height = height;
-                
+
                 // Dibujar la imagen en el canvas temporal
                 tempCtx.putImageData(faceImageData, 0, 0);
-                
+
                 // Aplicar filtro de blur
                 tempCtx.filter = 'blur(10px)';
                 tempCtx.drawImage(tempCanvas, 0, 0);
-                
+
                 // Obtener la imagen con blur
                 const blurredImageData = tempCtx.getImageData(0, 0, width, height);
-                
+
                 // Devolver la imagen con blur al canvas principal
                 ctx.putImageData(blurredImageData, x, y);
 
                 window.blurredImageData = blurredImageData;
             }
-            
+
             // Aplicar efecto de pixelado a una región
             function applyPixelEffect(x, y, width, height) {
                 const pixelSize = 10;
-                
+
                 // Reducir la resolución de la región
                 const smallWidth = Math.floor(width / pixelSize);
                 const smallHeight = Math.floor(height / pixelSize);
-                
+
                 // Dibujar la región reducida
                 ctx.drawImage(
-                    canvas, 
+                    canvas,
                     x, y, width, height,
                     x, y, smallWidth, smallHeight
                 );
-                
+
                 // Escalar de nuevo al tamaño original (crea el efecto pixelado)
                 ctx.imageSmoothingEnabled = false;
                 ctx.drawImage(
@@ -457,4 +465,5 @@
         });
     </script>
 </body>
+
 </html>
